@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -44,6 +43,11 @@ public class ReflectBeat extends ApplicationAdapter {
         viewport = new StretchViewport(RENDER_WIDTH, RENDER_HEIGHT, camera);
 
         //Gdx.input.setInputProcessor(new CustomInputAdapter(viewport));
+
+        // TODO: Start using Scene2d because actors handle touch events better and this is going to be hard
+        // https://github.com/libgdx/libgdx/wiki/Scene2d
+
+
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean touchDown (int x, int y, int pointer, int button) {
@@ -52,7 +56,7 @@ public class ReflectBeat extends ApplicationAdapter {
                 points = viewport.unproject(points);
                 Gdx.app.log("touchDown", String.format(Locale.US,
                         "Touch location (Transformed): %f, %f", points.x, points.y));
-                
+
                 return true; // return true to indicate the event was handled
             }
         });
@@ -61,7 +65,7 @@ public class ReflectBeat extends ApplicationAdapter {
 
         hitcircle_texture = new Texture("hitcircle.png");
         hitcircle_fail_texture = new Texture("hitcircle_fail.png");
-        hit_line = new Texture("linething2x.png");
+        hit_line = new Texture("hitline.png");
 
         hitcircles = new Array<HitCircle>();
         spawnHitcircle();
