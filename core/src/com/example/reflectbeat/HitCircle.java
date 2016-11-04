@@ -1,63 +1,45 @@
 package com.example.reflectbeat;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+
+import java.util.Locale;
 
 /**
  * Created by Jordan on 11/3/2016.
  */
 
-public class HitCircle extends Texture {
+public class HitCircle extends Sprite {
 
-    private float x_pos, y_pos;
-    public boolean x_direction; // Right is true
+    private int x_direction; // -1 is left
 
-    public HitCircle(boolean fail) {
-        //super(asset_name);
-        this(fail, ReflectBeat.RENDER_WIDTH / 2 - ReflectBeat.HIT_SPRITE_SIZE,
-                ReflectBeat.RENDER_HEIGHT, false);
-    }
+    public HitCircle(boolean fail, float x, float y, int xdir) {
+        //super(fail ? "hitcircle_fail.png" : "hitcircle.png");
+        super(fail ? ReflectBeat.hitcircle_fail_texture : ReflectBeat.hitcircle_texture);
 
-    public HitCircle(boolean fail, HitCircle hit) {
-        this(fail, hit.getX_pos(), hit.getY_pos(), hit.getX_direction());
-    }
-
-    public HitCircle(boolean fail, float x, float y, boolean xdir) {
-        super(fail ? "hitcircle_fail.png" : "hitcircle.png");
-        x_pos = x;
-        y_pos = y;
+        this.setPosition(x, y);
         // TODO: Make this not suck
-        if (x_pos < 2)
-            x_direction = true;
-        else if (x_pos > ReflectBeat.RENDER_WIDTH - ReflectBeat.HIT_SPRITE_SIZE - 2)
-            x_direction = false;
+
+        if (this.getX() < 2)
+            x_direction = 1;
+        else if (this.getX() > ReflectBeat.RENDER_WIDTH - ReflectBeat.HIT_SPRITE_SIZE - 2)
+            x_direction = -1;
         else
             x_direction = xdir;
+
+
+        Gdx.app.log("HitCircle constructor", String.format(Locale.US, "x: %f   y: %f    xdir: %d",
+                getX(), getY(), x_direction));
     }
 
-    // Move in x plane by delta
-    public void moveX(float delta) {
-        if (x_pos + delta > ReflectBeat.RENDER_WIDTH - ReflectBeat.HIT_SPRITE_SIZE
-                || x_pos - delta < 0) {
-            x_direction = !x_direction;
+    public void move(float xAmount, float yAmount) {
+        if (getX() + xAmount > ReflectBeat.RENDER_WIDTH - ReflectBeat.HIT_SPRITE_SIZE
+                || getX() - xAmount < 0) {
+            x_direction = -1 * x_direction;
         }
-        if (x_direction) x_pos += delta;
-        else x_pos -= delta;
-    }
-
-    //Move in y plane down by delta
-    public void moveDown(float delta) {
-        this.y_pos -= delta;
-    }
-
-    public float getX_pos() {
-        return x_pos;
-    }
-
-    public float getY_pos() {
-        return y_pos;
-    }
-
-    public boolean getX_direction() {
-        return x_direction;
+        // Warning: don't use this it's dumb
+        //setRotation(getRotation() + x_direction * -4);
+        super.translate((float) x_direction * xAmount, yAmount);
     }
 }
