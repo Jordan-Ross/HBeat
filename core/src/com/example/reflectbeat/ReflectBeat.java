@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.StringBuilder;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -42,6 +44,14 @@ public class ReflectBeat extends ApplicationAdapter {
     private float speed = 300;
     private int score;
 
+    Music music;
+    Array<Float> note_array;
+    int next_note_index;
+    float song_time;
+    float song_playhead;    // Last report of where we are in the music
+
+    boolean TEST;
+
     @Override
     public void create() {
         batch = new SpriteBatch();
@@ -51,11 +61,7 @@ public class ReflectBeat extends ApplicationAdapter {
         camera = new OrthographicCamera();
         viewport = new StretchViewport(RENDER_WIDTH, RENDER_HEIGHT, camera);
 
-        //Gdx.input.setInputProcessor(new CustomInputAdapter(viewport));
-
-        // TODO: Start using Scene2d because actors handle touch events better and this is going to be hard
-        // https://github.com/libgdx/libgdx/wiki/Scene2d
-
+        // TODO: Split up all code a lot more
 
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
@@ -80,7 +86,7 @@ public class ReflectBeat extends ApplicationAdapter {
                             HitCircle hit = active_hitcircles.get(i);
                             // Remove hit
                             hit.alive = false;
-                            spawnHitcircle(0, -speed);
+                            //spawnHitcircle(0, -speed);
 
                             score++;
                         }
@@ -116,21 +122,35 @@ public class ReflectBeat extends ApplicationAdapter {
 
         active_hitcircles = new Array<HitCircle>();
 
-        spawnHitcircle(0, -speed);
+        //spawnHitcircle(0, -speed);
 
         startSong();
 
         score = 0;
+
+        //TODO: Make this not shit
+        // Ignore the first tick becuase it's always off.
+        TEST = false;
     }
 
     private void startSong() {
         // This is a stream, i.e. not loaded in ram.
-        Music music = Gdx.audio.newMusic(Gdx.files.internal("clicktrack.mp3"));
+        music = Gdx.audio.newMusic(Gdx.files.internal("clicktrack.mp3"));
         music.setLooping(true);
+
+        // TODO: Add additional info to note array (x,y,speed, etc)
+        note_array = new Array<Float>();
+        FileHandle handle = Gdx.files.internal("ClickTrackMapping.map");
+        String strings[] = handle.readString().split("\\r\\n");
+        for (String string : strings) {
+            note_array.add(Float.parseFloat(string));
+        }
+        next_note_index = 0;
+
+        song_time = 0;
+        song_playhead = 0;
+
         music.play();
-
-
-
     }
 
     // TODO: Add x/y pos
@@ -172,7 +192,7 @@ public class ReflectBeat extends ApplicationAdapter {
                 if (hit.getY() < -HIT_SPRITE_SIZE) {
                     // Below Screen (Remove hitcircle)
                     hit.alive = false;
-                    spawnHitcircle(0, -speed);
+                    //spawnHitcircle(0, -speed);
                 }
                 else {
                     // Just below line (Hit fail)
@@ -188,19 +208,47 @@ public class ReflectBeat extends ApplicationAdapter {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+
+        //song_time += Gdx.graphics.getDeltaTime();
+        //float song_position = music.getPosition();
+        //if (song_position != song_playhead) {
+        //    song_time = (song_time + song_position) / 2;
+        //    song_playhead = song_position;
+        //}
+        // Above code probably not needed, musig.getPosition() seems fine
+        //Gdx.app.log("songposition", Float.toString(music.getPosition()));
+
+        while (next_note_index < note_array.size && TEST) {
+            // TODO: Improve this; delay and such
+            if (music.getPosition() + Gdx.graphics.getDeltaTime() > note_array.get(next_note_index)) {
+                spawnHitcircle(0, -speed);
+                next_note_index++;
+                Gdx.app.log("Created Note at", Float.toString(music.getPosition()));
+                Gdx.app.log("Created Note, delta", Float.toString(Gdx.graphics.getDeltaTime()));
+            }
+            else break;
+        }
+
+        TEST = true;
+
         moveHitcircles();
 
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        // TODO: Custom score font? Actually, just fix the score thing in general
-        font.draw(batch, Integer.toString(score), camera.viewportWidth/2 - 70, camera.viewportHeight/2);
-        batch.draw(hit_line, 0, LINE_HEIGHT);
-        for (int i = 0; i < active_hitcircles.size; i++ ) {
-            HitCircle hit = active_hitcircles.get(i);
-            hit.draw(batch);
+            // TODO: Custom score font? Actually, just fix the score thing in general
+            font.draw(batch,
+                    Integer.toString(score),
+                    camera.viewportWidth/2 - 70,
+                    camera.viewportHeight/2);
 
-        }
+            // TODO: Make the line thinner, fix the height and get the center of the line, etc
+            batch.draw(hit_line, 0, LINE_HEIGHT);
 
+            for (int i = 0; i < active_hitcircles.size; i++ ) {
+                HitCircle hit = active_hitcircles.get(i);
+                hit.draw(batch);
+
+            }
         batch.end();
 
         removeHitcircles();
@@ -223,5 +271,6 @@ public class ReflectBeat extends ApplicationAdapter {
         hitcircle_texture.dispose();
         hit_line_texture.dispose();
         hitCirclePool.freeAll(active_hitcircles);
+        score = 0;
     }
 }
