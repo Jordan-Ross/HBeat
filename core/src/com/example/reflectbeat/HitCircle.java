@@ -15,17 +15,22 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     private float xspeed, yspeed;
     private int x_direction; // -1 is left
     public boolean alive;
+    private final float hitbox_diff = 32;
+
+    int HIT_SPRITE_SIZE = Graphics.HIT_SPRITE_SIZE;
+    int RENDER_WIDTH = Graphics.RENDER_WIDTH;
+    int RENDER_HEIGHT = Graphics.RENDER_HEIGHT;
 
     public HitCircle(boolean fail, float x, float y, int xdir, float xspeed, float yspeed) {
         //super(fail ? "hitcircle_fail.png" : "hitcircle.png");
-        super(fail ? ReflectBeat.hitcircle_fail_texture : ReflectBeat.hitcircle_texture);
+        super(fail ? Graphics.hitcircle_fail_texture : Graphics.hitcircle_texture);
 
         this.setPosition(x, y);
 
         // TODO: Make this not suck
         if (this.getX() < 2)
             x_direction = 1;
-        else if (this.getX() > ReflectBeat.RENDER_WIDTH - ReflectBeat.HIT_SPRITE_SIZE - 2)
+        else if (this.getX() > RENDER_WIDTH - HIT_SPRITE_SIZE - 2)
             x_direction = -1;
         else
             x_direction = xdir;
@@ -46,7 +51,7 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     public void moveCircle(float deltaTime) {
         float xAmount = xspeed * deltaTime;
         float yAmount = yspeed * deltaTime;
-        if (getX() + xAmount > ReflectBeat.RENDER_WIDTH - ReflectBeat.HIT_SPRITE_SIZE
+        if (getX() + xAmount > RENDER_WIDTH - HIT_SPRITE_SIZE
                 || getX() - xAmount < 0) {
             x_direction = -1 * x_direction;
         }
@@ -56,11 +61,18 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     }
 
     public void init(boolean fail, float xspeed, float yspeed) {
-        this.setTexture(fail ? ReflectBeat.hitcircle_fail_texture : ReflectBeat.hitcircle_texture);
-        setPosition(ReflectBeat.RENDER_WIDTH/2, ReflectBeat.RENDER_HEIGHT);
+        this.setTexture(fail ? Graphics.hitcircle_fail_texture : Graphics.hitcircle_texture);
+        setPosition(RENDER_WIDTH/2, RENDER_HEIGHT);
         this.xspeed = xspeed;
         this.yspeed = yspeed;
         alive = true;
+    }
+
+    public boolean checkTouched(float x, float y) {
+        return x < this.getX() + HIT_SPRITE_SIZE + hitbox_diff &&
+                y < this.getY() + HIT_SPRITE_SIZE + hitbox_diff &&
+                x > this.getX() - hitbox_diff &&
+                y > this.getY() - hitbox_diff;
     }
 
     @Override
