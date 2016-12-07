@@ -20,7 +20,7 @@ public class Audio {
 
     private float latency;
 
-    private int TIME_IT_TAKES_TO_MOVE_DOWN_SCREEN = 600;
+    private int TIME_IT_TAKES_TO_MOVE_DOWN_SCREEN = 550;
     private int AudioLeadIn = 2000;    // Delay at beginning of song
 
     private long current_song_start;

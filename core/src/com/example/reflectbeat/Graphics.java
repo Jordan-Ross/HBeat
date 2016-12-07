@@ -146,6 +146,7 @@ public class Graphics {
                 else {
                     // Just below line (Hit fail)
                     hit.setTexture(hitcircle_fail_texture);
+                    ReflectBeat.score = 0;
                 }
             }
         }
