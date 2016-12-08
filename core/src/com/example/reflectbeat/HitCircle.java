@@ -17,13 +17,13 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     public boolean alive;
     private final float hitbox_diff = 32;
 
-    int HIT_SPRITE_SIZE = Graphics.HIT_SPRITE_SIZE;
-    int RENDER_WIDTH = Graphics.RENDER_WIDTH;
-    int RENDER_HEIGHT = Graphics.RENDER_HEIGHT;
+    int HIT_SPRITE_SIZE = GraphicsController.HIT_SPRITE_SIZE;
+    int RENDER_WIDTH = GraphicsController.RENDER_WIDTH;
+    int RENDER_HEIGHT = GraphicsController.RENDER_HEIGHT;
 
     public HitCircle(boolean fail, float x, float y, int xdir, float xspeed, float yspeed) {
         //super(fail ? "hitcircle_fail.png" : "hitcircle.png");
-        super(fail ? Graphics.hitcircle_fail_texture : Graphics.hitcircle_texture);
+        super(fail ? GraphicsController.hitcircleFailTexture : GraphicsController.hitcircleTexture);
 
         this.setPosition(x, y);
 
@@ -61,7 +61,7 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     }
 
     public void init(boolean fail, float xspeed, float yspeed) {
-        this.setTexture(fail ? Graphics.hitcircle_fail_texture : Graphics.hitcircle_texture);
+        this.setTexture(fail ? GraphicsController.hitcircleFailTexture : GraphicsController.hitcircleTexture);
         setPosition(RENDER_WIDTH/2, RENDER_HEIGHT);
         this.xspeed = xspeed;
         this.yspeed = yspeed;

@@ -18,15 +18,15 @@ import java.util.Random;
  * Created by Jordan on 12/7/2016.
  * Handles all Graphics of the application
  */
-public class Graphics {
+public class GraphicsController {
 
     private Random random;
 
     public Viewport viewport;
     private OrthographicCamera camera;
 
-    private Pool<HitCircle> hit_circle_pool;
-    public Array<HitCircle> active_hitcircles;
+    private Pool<HitCircle> hitCirclePool;
+    public Array<HitCircle> hitCircles;
 
     public static final int RENDER_WIDTH = 540;
     public static final int RENDER_HEIGHT = 960;
@@ -34,15 +34,15 @@ public class Graphics {
     public static final int HIT_SPRITE_SIZE = 64;
 
     private SpriteBatch batch;
-    private Sprite hit_line;
+    private Sprite hitLine;
 
-    public static Texture hitcircle_texture;
-    public static Texture hitcircle_fail_texture;
-    private Texture hit_line_texture;
+    public static Texture hitcircleTexture;
+    public static Texture hitcircleFailTexture;
+    private Texture hitLineTexture;
 
     BitmapFont font;
 
-    Graphics() {
+    GraphicsController() {
         batch = new SpriteBatch();
         Gdx.graphics.setContinuousRendering(true);
         Gdx.graphics.requestRendering();
@@ -50,14 +50,14 @@ public class Graphics {
         camera = new OrthographicCamera();
         viewport = new StretchViewport(RENDER_WIDTH, RENDER_HEIGHT, camera);
 
-        hitcircle_texture = new Texture("hitcircle.png");
-        hitcircle_fail_texture = new Texture("hitcircle_fail.png");
-        hit_line_texture = new Texture("hitline.png");
+        hitcircleTexture = new Texture("hitcircle.png");
+        hitcircleFailTexture = new Texture("hitcircle_fail.png");
+        hitLineTexture = new Texture("hitline.png");
 
-        hit_line = new Sprite(hit_line_texture);
-        hit_line.setPosition(0, LINE_HEIGHT);
+        hitLine = new Sprite(hitLineTexture);
+        hitLine.setPosition(0, LINE_HEIGHT);
 
-        hit_circle_pool = new Pool<HitCircle>() {
+        hitCirclePool = new Pool<HitCircle>() {
             @Override
             protected HitCircle newObject() {
                 return new  HitCircle(
@@ -69,7 +69,7 @@ public class Graphics {
             }
         };
 
-        active_hitcircles = new Array<HitCircle>();
+        hitCircles = new Array<HitCircle>();
 
         random = new Random();
         font = new BitmapFont();
@@ -92,10 +92,10 @@ public class Graphics {
                     camera.viewportHeight/2);
 
             // TODO: Make the line thinner, fix the height and get the center of the line, etc
-            batch.draw(hit_line, 0, LINE_HEIGHT);
+            batch.draw(hitLine, 0, LINE_HEIGHT);
 
-            for (int i = 0; i < active_hitcircles.size; i++ ) {
-                HitCircle hit = active_hitcircles.get(i);
+            for (int i = 0; i < hitCircles.size; i++ ) {
+                HitCircle hit = hitCircles.get(i);
                 hit.draw(batch);
 
             }
@@ -108,31 +108,31 @@ public class Graphics {
 
     // TODO: Add x/y pos
     public void spawnHitcircle(float xspeed, float yspeed) {
-        HitCircle hit = hit_circle_pool.obtain();
+        HitCircle hit = hitCirclePool.obtain();
         hit.init(false, xspeed, yspeed);
-        active_hitcircles.add(hit);
+        hitCircles.add(hit);
     }
 
 
     public boolean checkHitbox(float x, float y) {
-        return hit_line.getBoundingRectangle().contains(x, y);
+        return hitLine.getBoundingRectangle().contains(x, y);
     }
 
     private void removeHitcircles() {
-        for (int i = 0; i < active_hitcircles.size; i++) {
-            HitCircle hit = active_hitcircles.get(i);
+        for (int i = 0; i < hitCircles.size; i++) {
+            HitCircle hit = hitCircles.get(i);
             if (!hit.alive) {
-                active_hitcircles.removeIndex(i);
-                hit_circle_pool.free(hit);
+                hitCircles.removeIndex(i);
+                hitCirclePool.free(hit);
             }
         }
     }
 
     //Handle Hitcircle movement
     private void moveHitcircles() {
-        int size = active_hitcircles.size;
+        int size = hitCircles.size;
         for (int i = 0; i < size; i++) {
-            HitCircle hit = active_hitcircles.get(i);
+            HitCircle hit = hitCircles.get(i);
 
             hit.moveCircle(Gdx.graphics.getDeltaTime());
 
@@ -145,7 +145,7 @@ public class Graphics {
                 }
                 else {
                     // Just below line (Hit fail)
-                    hit.setTexture(hitcircle_fail_texture);
+                    hit.setTexture(hitcircleFailTexture);
                     ReflectBeat.score = 0;
                 }
             }
@@ -160,10 +160,10 @@ public class Graphics {
 
     public void dispose() {
         batch.dispose();
-        hitcircle_fail_texture.dispose();
-        hitcircle_texture.dispose();
-        hit_line_texture.dispose();
-        hit_circle_pool.freeAll(active_hitcircles);
+        hitcircleFailTexture.dispose();
+        hitcircleTexture.dispose();
+        hitLineTexture.dispose();
+        hitCirclePool.freeAll(hitCircles);
         ReflectBeat.score = 0;
     }
 }
