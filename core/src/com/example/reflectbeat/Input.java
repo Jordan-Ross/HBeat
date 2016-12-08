@@ -8,6 +8,7 @@ import java.util.Locale;
 
 /**
  * Created by Jordan on 12/7/2016.
+ * Handles touch input
  */
 public class Input extends InputAdapter {
 
@@ -33,7 +34,7 @@ public class Input extends InputAdapter {
         int size = graphicsController.hitCircles.size;
         for (int i = 0; i < size; i++) {
             // TODO: Calibrate hitboxes
-            if (graphicsController.checkHitbox(transform.x, transform.y)) {
+            if (graphicsController.checkInLineHitbox(transform.x, transform.y)) {
                 //Tapped inside hitline, so check for hit_circle_pool
                 if (graphicsController.hitCircles.get(i).checkTouched(transform.x, transform.y)) {
                     // Hitcircle was touched while one line

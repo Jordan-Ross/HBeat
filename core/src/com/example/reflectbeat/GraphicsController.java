@@ -35,6 +35,7 @@ public class GraphicsController {
 
     private SpriteBatch batch;
     private Sprite hitLine;
+    public static final int hitLine_tolerance = 40;
 
     public static Texture hitcircleTexture;
     public static Texture hitcircleFailTexture;
@@ -114,8 +115,9 @@ public class GraphicsController {
     }
 
 
-    public boolean checkHitbox(float x, float y) {
-        return hitLine.getBoundingRectangle().contains(x, y);
+    public boolean checkInLineHitbox(float x, float y) {
+        return y < hitLine.getY() + hitLine.getHeight() + hitLine_tolerance &&
+                    y > hitLine.getY() - hitLine_tolerance;
     }
 
     private void removeHitcircles() {

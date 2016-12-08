@@ -9,68 +9,73 @@ import com.badlogic.gdx.utils.Timer;
 
 /**
  * Created by Jordan on 12/7/2016.
- * This class handles the timing of songs
+ * This class handles all audio
  */
 public class AudioController {
 
     private Music currentSong;
-    private Array<MapData> currentNotes;
+    private Array<HitObject> currentNotes;
     private long currentSongPos;
-
 
     private float speed = 300;
 
-    private float latency;
+    private long latency;
 
-    private int TIME_IT_TAKES_TO_MOVE_DOWN_SCREEN = 550;
-    private int AudioLeadIn = 2000;    // Delay at beginning of song
-
-    private long current_song_start;
-    private float song_playhead;    // Last report of where we are in the currentSong
+    private long audioLeadInMS = 2800;    // Approx time to move down screen at speed 300
+    private long currentSongStart;
 
     private Sound hitSound;
 
     public void loadSong() {
-        //TODO: more songs and selection
+        //TODO: more songs and selection screen
         // This is a stream, i.e. not loaded in ram.
-        currentSong = Gdx.audio.newMusic(Gdx.files.internal("flower.mp3"));
+        currentSong = Gdx.audio.newMusic(Gdx.files.internal("daisy.mp3"));
         currentSong.setLooping(true);
 
         // TODO: Add additional info to note array (x,y,speed, etc)
         // Parse map for data
-        currentNotes = new Array<MapData>();
-        FileHandle handle = Gdx.files.internal("flower.rbm");
+        currentNotes = new Array<HitObject>();
+        FileHandle handle = Gdx.files.internal("daisy.rbm");
         String strings[] = handle.readString().split("\\r\\n");
         for (String string : strings) {
-            currentNotes.add(new MapData(string));
+            currentNotes.add(new HitObject(string));
         }
 
-        currentSongPos = 0;
-        song_playhead = 0;
-
-        latency = 0.015f;
+        //TODO: fix latency
+        // Manually tweaked for now
+        //latency = -2800;
+        latency = -50;  //ms
 
         initSounds();
 
-        current_song_start = System.currentTimeMillis();
+        currentSongPos = 0;
+        currentSongStart = System.currentTimeMillis();
         Timer tt = new Timer();
         tt.scheduleTask(new Timer.Task() {
             @Override
             public void run() {
                 currentSong.play();
             }
-        }, AudioLeadIn / 1000);
+        }, audioLeadInMS / 1000f);
     }
 
     public void processHitcircles(GraphicsController graphics_controller) {
-        currentSongPos = System.currentTimeMillis() - current_song_start;
+
+        //Manage song timing
+        if (currentSong.isPlaying()) {
+            currentSongPos = (long)(currentSong.getPosition() * 1000) + audioLeadInMS;
+        }
+        else {
+            currentSongPos = System.currentTimeMillis() - currentSongStart;
+        }
 
         int note_index = 0;
-        for (MapData note : currentNotes) {
+        for (HitObject note : currentNotes) {
             // Note needs to spawn at actual time - time to move down screen
-            if ((currentSongPos +  latency > (note.time_ms-TIME_IT_TAKES_TO_MOVE_DOWN_SCREEN))) {
+            //if ((currentSongPos +  latency > (note.time_ms-TIME_IT_TAKES_TO_MOVE_DOWN_SCREEN))) {
+            if ((currentSongPos > note.time_ms + latency)) {
                 // Spawn note, remove actual note from currentNotes
-                graphics_controller.spawnHitcircle(50, -speed);
+                graphics_controller.spawnHitcircle(200, -speed);
                 currentNotes.removeIndex(note_index);
                 note_index++;
 

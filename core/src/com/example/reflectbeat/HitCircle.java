@@ -8,12 +8,13 @@ import java.util.Locale;
 
 /**
  * Created by Jordan on 11/3/2016.
+ * Acts as a single hit object on the screen
  */
 
 public class HitCircle extends Sprite implements Pool.Poolable {
 
     private float xspeed, yspeed;
-    private int x_direction; // -1 is left
+    private int x_direction; // 1 is right, -1 is left
     public boolean alive;
     private final float hitbox_diff = 32;
 
@@ -27,7 +28,7 @@ public class HitCircle extends Sprite implements Pool.Poolable {
 
         this.setPosition(x, y);
 
-        // TODO: Make this not suck
+        // Reverses direction if too close to one edge
         if (this.getX() < 2)
             x_direction = 1;
         else if (this.getX() > RENDER_WIDTH - HIT_SPRITE_SIZE - 2)
@@ -51,11 +52,13 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     public void moveCircle(float deltaTime) {
         float xAmount = xspeed * deltaTime;
         float yAmount = yspeed * deltaTime;
+
+        // *boing*
         if (getX() + xAmount > RENDER_WIDTH - HIT_SPRITE_SIZE
                 || getX() - xAmount < 0) {
             x_direction = -1 * x_direction;
         }
-        // Warning: don't use this it's dumb
+        // Warning: don't use this it's dumb (but looks interesting)
         //setRotation(getRotation() + x_direction * -4);
         super.translate((float) x_direction * xAmount, yAmount);
     }
