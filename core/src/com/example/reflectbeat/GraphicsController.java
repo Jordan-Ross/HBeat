@@ -4,9 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -26,11 +29,12 @@ public class GraphicsController {
     private OrthographicCamera camera;
 
     private Pool<HitCircle> hitCirclePool;
-    public Array<HitCircle> hitCircles;
+    public Array<HitCircle> activeHitCircles;
 
     public static final int RENDER_WIDTH = 540;
     public static final int RENDER_HEIGHT = 960;
-    public static final int LINE_HEIGHT = 100;
+    public static final int LINE_HEIGHT = 150;
+    public static final int LINE_WIDTH = 40;
     public static final int HIT_SPRITE_SIZE = 64;
 
     private SpriteBatch batch;
@@ -40,6 +44,15 @@ public class GraphicsController {
     public static Texture hitcircleTexture;
     public static Texture hitcircleFailTexture;
     private Texture hitLineTexture;
+
+    private Texture explosion;
+    private static final int FRAME_COLS = 8;
+    private static final int FRAME_ROWS = 1;
+    TextureRegion[] explosionFrames;
+    private Animation explosionAnimation;
+    public Array<Explosion> activeExplosions;
+
+    private TextureRegion currentFrame;
 
     BitmapFont font;
 
@@ -55,26 +68,37 @@ public class GraphicsController {
         hitcircleFailTexture = new Texture("hitcircle_fail.png");
         hitLineTexture = new Texture("hitline.png");
 
+        // EXPLOSION
+        explosion = new Texture("sanicnew2x.png");
+        TextureRegion[][] temp = TextureRegion.split(explosion, explosion.getWidth() / FRAME_COLS, explosion.getHeight() / FRAME_ROWS);
+        explosionFrames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
+        int index = 0;
+        for (int i = 0; i < FRAME_ROWS; i++) {
+            for (int j = 0; j < FRAME_COLS; j++) {
+                explosionFrames[index++] = temp[i][j];
+            }
+        }
+        explosionAnimation = new Animation(0.025f, explosionFrames);
+        activeExplosions = new Array<Explosion>();
+
         hitLine = new Sprite(hitLineTexture);
         hitLine.setPosition(0, LINE_HEIGHT);
 
+        // The pool is better on memory or something
         hitCirclePool = new Pool<HitCircle>() {
             @Override
             protected HitCircle newObject() {
-                return new  HitCircle(
-                        false,
-                        (float) random.nextInt(RENDER_WIDTH - 2 * HIT_SPRITE_SIZE) + HIT_SPRITE_SIZE,
-                        RENDER_HEIGHT,
-                        random.nextBoolean() ? 1 : -1
-                );
+                return new  HitCircle(false, random.nextBoolean() ? 1 : -1);
             }
         };
 
-        hitCircles = new Array<HitCircle>();
+        activeHitCircles = new Array<HitCircle>();
 
         random = new Random();
         font = new BitmapFont();
-        font.getData().setScale(20, 20);
+        // TODO: Font could probably look a bit better
+        font = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
+        font.getData().setScale(1.5f);
     }
 
     public void processGraphics() {
@@ -84,34 +108,41 @@ public class GraphicsController {
 
         moveHitcircles();
 
+        // Process Graphics
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-            // TODO: Custom score font
             font.draw(batch,
-                    Integer.toString(ReflectBeat.score),
-                    camera.viewportWidth/2 - 70,
-                    camera.viewportHeight/2);
+                    ReflectBeat.scoreStr,
+                    0,
+                    camera.viewportHeight / 2,
+                    RENDER_WIDTH,
+                    Align.center,
+                    false);
 
-            // TODO: Make the line thinner, fix the height and get the center of the line, etc
             batch.draw(hitLine, 0, LINE_HEIGHT);
 
-            for (int i = 0; i < hitCircles.size; i++ ) {
-                HitCircle hit = hitCircles.get(i);
+            for (HitCircle hit : activeHitCircles) {
                 hit.draw(batch);
+            }
 
+            for (Explosion exp : activeExplosions) {
+                float stateTime = exp.getCurrentFrame(Gdx.graphics.getDeltaTime());
+                if (explosionAnimation.isAnimationFinished(stateTime)) {
+                    activeExplosions.removeValue(exp, true);
+                }
+                else {
+                    batch.draw(explosionAnimation.getKeyFrame(stateTime), exp.xpos, LINE_HEIGHT);
+                }
             }
         batch.end();
 
         removeHitcircles();
     }
 
-
-
-    // TODO: Add x/y pos
-    public void spawnHitcircle(float xspeed, float yspeed) {
+    public void spawnHitcircle(HitObject note) {
         HitCircle hit = hitCirclePool.obtain();
-        hit.init(false, xspeed, yspeed);
-        hitCircles.add(hit);
+        hit.init(false, note.x_vel, note.y_vel, note.x_pos, note.y_pos);
+        activeHitCircles.add(hit);
     }
 
 
@@ -121,10 +152,9 @@ public class GraphicsController {
     }
 
     private void removeHitcircles() {
-        for (int i = 0; i < hitCircles.size; i++) {
-            HitCircle hit = hitCircles.get(i);
+        for (HitCircle hit : activeHitCircles) {
             if (!hit.alive) {
-                hitCircles.removeIndex(i);
+                activeHitCircles.removeValue(hit, true);
                 hitCirclePool.free(hit);
             }
         }
@@ -132,11 +162,11 @@ public class GraphicsController {
 
     //Handle Hitcircle movement
     private void moveHitcircles() {
-        int size = hitCircles.size;
-        for (int i = 0; i < size; i++) {
-            HitCircle hit = hitCircles.get(i);
-
+        for (HitCircle hit : activeHitCircles) {
+            //long test = System.nanoTime();
             hit.moveCircle(Gdx.graphics.getDeltaTime());
+            //test -= System.nanoTime();
+            //Gdx.app.log("moveHitcircles", Long.toString(test));
 
             // If hitcircle passed below line
             if (hit.getY() < LINE_HEIGHT - HIT_SPRITE_SIZE) {
@@ -148,12 +178,11 @@ public class GraphicsController {
                 else {
                     // Just below line (Hit fail)
                     hit.setTexture(hitcircleFailTexture);
-                    ReflectBeat.score = 0;
+                    ReflectBeat.resetScore();
                 }
             }
         }
     }
-
 
     public void resize(int width, int height) {
         viewport.update(width,height);
@@ -165,7 +194,7 @@ public class GraphicsController {
         hitcircleFailTexture.dispose();
         hitcircleTexture.dispose();
         hitLineTexture.dispose();
-        hitCirclePool.freeAll(hitCircles);
+        hitCirclePool.freeAll(activeHitCircles);
         ReflectBeat.score = 0;
     }
 }

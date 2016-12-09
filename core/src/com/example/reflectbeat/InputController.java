@@ -10,12 +10,12 @@ import java.util.Locale;
  * Created by Jordan on 12/7/2016.
  * Handles touch input
  */
-public class Input extends InputAdapter {
+public class InputController extends InputAdapter {
 
     private GraphicsController graphicsController;
     private AudioController audioController;
 
-    Input(GraphicsController graphicsController, AudioController audioController) {
+    InputController(GraphicsController graphicsController, AudioController audioController) {
         this.graphicsController = graphicsController;
         this.audioController = audioController;
     }
@@ -31,22 +31,22 @@ public class Input extends InputAdapter {
         //TODO: Improve this process
         //This is going through *every* hitcircle on the screen to check for touch,
         //which is probably going to suck later (like when there are 100 circles to check)
-        int size = graphicsController.hitCircles.size;
+        int size = graphicsController.activeHitCircles.size;
         for (int i = 0; i < size; i++) {
             // TODO: Calibrate hitboxes
             if (graphicsController.checkInLineHitbox(transform.x, transform.y)) {
                 //Tapped inside hitline, so check for hit_circle_pool
-                if (graphicsController.hitCircles.get(i).checkTouched(transform.x, transform.y)) {
+                if (graphicsController.activeHitCircles.get(i).checkTouched(transform.x, transform.y)) {
                     // Hitcircle was touched while one line
                     audioController.playHitsound();
+                    graphicsController.activeExplosions.add(new Explosion(transform.x));
 
-                    Gdx.app.log("touchDown", "Hitcircle touched!");
-                    HitCircle hit = graphicsController.hitCircles.get(i);
+                    //Gdx.app.log("touchDown", "Hitcircle touched!");
+                    HitCircle hit = graphicsController.activeHitCircles.get(i);
                     // Remove hit
                     hit.alive = false;
-                    //spawnHitcircle(0, -speed);
 
-                    ReflectBeat.score++;
+                    ReflectBeat.incrementScore();
                     break;
                 }
             }

@@ -16,22 +16,26 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     private float xspeed, yspeed;
     private int x_direction; // 1 is right, -1 is left
     public boolean alive;
-    private final float hitbox_diff = 32;
+    private final float hitbox_diff = 32;   // HitCircle touch tolerance
 
     int HIT_SPRITE_SIZE = GraphicsController.HIT_SPRITE_SIZE;
     int RENDER_WIDTH = GraphicsController.RENDER_WIDTH;
+    int WIDTH_RIGHT_SPRITE = RENDER_WIDTH - HIT_SPRITE_SIZE;    // Max x pos a circle can spawn
     int RENDER_HEIGHT = GraphicsController.RENDER_HEIGHT;
 
-    public HitCircle(boolean fail, float x, float y, int xdir, float xspeed, float yspeed) {
-        //super(fail ? "hitcircle_fail.png" : "hitcircle.png");
+    public HitCircle(boolean fail, int xdir) {
         super(fail ? GraphicsController.hitcircleFailTexture : GraphicsController.hitcircleTexture);
+        x_direction = xdir;
+    }
 
+    public HitCircle(boolean fail, float x, float y, int xdir, float xspeed, float yspeed) {
+        this(fail, xdir);
         this.setPosition(x, y);
 
-        // Reverses direction if too close to one edge
+        // Reverses direction if too close to one edge on spawn
         if (this.getX() < 2)
             x_direction = 1;
-        else if (this.getX() > RENDER_WIDTH - HIT_SPRITE_SIZE - 2)
+        else if (this.getX() > WIDTH_RIGHT_SPRITE - 2)
             x_direction = -1;
         else
             x_direction = xdir;
@@ -51,23 +55,24 @@ public class HitCircle extends Sprite implements Pool.Poolable {
 
     public void moveCircle(float deltaTime) {
         float xAmount = xspeed * deltaTime;
-        float yAmount = yspeed * deltaTime;
 
         // *boing*
-        if (getX() + xAmount > RENDER_WIDTH - HIT_SPRITE_SIZE
+        if (getX() + xAmount > WIDTH_RIGHT_SPRITE
                 || getX() - xAmount < 0) {
-            x_direction = -1 * x_direction;
+            x_direction *= -1;
         }
         // Warning: don't use this it's dumb (but looks interesting)
         //setRotation(getRotation() + x_direction * -4);
-        super.translate((float) x_direction * xAmount, yAmount);
+        super.translate((float) x_direction * xAmount, yspeed * deltaTime);
     }
 
-    public void init(boolean fail, float xspeed, float yspeed) {
+    public void init(boolean fail, float xspeed, float yspeed, float xpos, float ypos) {
         this.setTexture(fail ? GraphicsController.hitcircleFailTexture : GraphicsController.hitcircleTexture);
         setPosition(RENDER_WIDTH/2, RENDER_HEIGHT);
         this.xspeed = xspeed;
         this.yspeed = yspeed;
+        this.setX(xpos);
+        this.setY(ypos);
         alive = true;
     }
 
@@ -82,5 +87,9 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     public void reset() {
         setPosition(0,0);
         alive = false;
+    }
+
+    public void update (float delta) {
+
     }
 }

@@ -31,9 +31,15 @@ public class HitObject {
     HitObject(String str) {
         String arr[] = str.split(",");
         time_ms = (int)Float.parseFloat(arr[0]);
-        x_pos = Integer.parseInt(arr[1]);
-        y_pos = Integer.parseInt(arr[2]);
-        x_vel = 0;
-        y_vel = 0;
+        x_pos = (Integer.parseInt(arr[1]) %
+                (GraphicsController.RENDER_WIDTH - 2 * GraphicsController.HIT_SPRITE_SIZE))
+                + GraphicsController.HIT_SPRITE_SIZE;
+        //y_pos = Integer.parseInt(arr[2]);
+        if (x_pos > GraphicsController.RENDER_WIDTH + GraphicsController.HIT_SPRITE_SIZE) {
+            x_vel = 200;
+        }
+        y_pos = GraphicsController.RENDER_HEIGHT;
+        x_vel = 200;    // TODO: no constants pls
+        y_vel = -300;
     }
 }

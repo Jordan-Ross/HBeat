@@ -10,16 +10,17 @@ public class ReflectBeat extends ApplicationAdapter {
     private GraphicsController graphicsController;
 
     static public int score;
+    static public String scoreStr; // Score in a converted string ?????
 
     @Override
     public void create() {
         graphicsController = new GraphicsController();
         audioController = new AudioController();
-        Gdx.input.setInputProcessor(new Input(graphicsController, audioController));
+        Gdx.input.setInputProcessor(new InputController(graphicsController, audioController));
 
         audioController.loadSong();
 
-        score = 0;
+        resetScore();
     }
 
     @Override
@@ -38,5 +39,15 @@ public class ReflectBeat extends ApplicationAdapter {
     @Override
     public void dispose() {
         graphicsController.dispose();
+    }
+
+    public static void incrementScore() {
+        score++;
+        scoreStr = Integer.toString(score);
+    }
+
+    public static void resetScore() {
+        score = 0;
+        scoreStr = Integer.toString(score);
     }
 }

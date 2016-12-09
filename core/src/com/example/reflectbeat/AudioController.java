@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
+import com.sun.corba.se.impl.orbutil.graph.Graph;
 
 /**
  * Created by Jordan on 12/7/2016.
@@ -21,7 +22,8 @@ public class AudioController {
 
     private long latency;
 
-    private long audioLeadInMS = 2800;    // Approx time to move down screen at speed 300
+    // TODO: Stop using constants you fuck
+    private long audioLeadInMS = (long)(((GraphicsController.RENDER_HEIGHT - GraphicsController.LINE_HEIGHT - 20) / speed) * 1000);    // Approx time to move down screen at speed 300
     private long currentSongStart;
 
     private Sound hitSound;
@@ -30,9 +32,10 @@ public class AudioController {
         //TODO: more songs and selection screen
         // This is a stream, i.e. not loaded in ram.
         currentSong = Gdx.audio.newMusic(Gdx.files.internal("daisy.mp3"));
-        currentSong.setLooping(true);
+        //currentSong.setLooping(true);
 
         // TODO: Add additional info to note array (x,y,speed, etc)
+        // TODO: Make Hitcircle and Hitobject one thing ?
         // Parse map for data
         currentNotes = new Array<HitObject>();
         FileHandle handle = Gdx.files.internal("daisy.rbm");
@@ -75,7 +78,7 @@ public class AudioController {
             //if ((currentSongPos +  latency > (note.time_ms-TIME_IT_TAKES_TO_MOVE_DOWN_SCREEN))) {
             if ((currentSongPos > note.time_ms + latency)) {
                 // Spawn note, remove actual note from currentNotes
-                graphics_controller.spawnHitcircle(200, -speed);
+                graphics_controller.spawnHitcircle(note);
                 currentNotes.removeIndex(note_index);
                 note_index++;
 
