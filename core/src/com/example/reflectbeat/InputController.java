@@ -33,7 +33,8 @@ public class InputController extends InputAdapter {
 
                     //Gdx.app.log("touchDown", "Hitcircle touched!");
                     HitCircle hit = ReflectBeat.graphicsController.activeHitCircles.get(i);
-                    //TODO ReflectBeat.audioController.checkTiming(hit.spawn_time, transform.x);
+                    //TODO TIMING
+                    ReflectBeat.audioController.checkTiming(hit.spawn_time, transform.x);
                     // Remove hit
                     hit.alive = false;
 

@@ -104,7 +104,7 @@ public class GraphicsController {
         scoreFont = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
         judgementFont = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
         scoreFont.getData().setScale(1.5f);
-        judgementFont.getData().setScale(.1f);
+        judgementFont.getData().setScale(.2f);
 
         judgements = new Array<Judgement>();
     }
@@ -127,10 +127,14 @@ public class GraphicsController {
                     Align.center,
                     false);
 
-            //TODO (this is very slow)
-            // for (Judgement judge : judgements) {
-            //    judgementFont.draw(batch, judge.j.name(), judge.xPos, JUDGEMENT_HEIGHT, RENDER_WIDTH, Align.center, false);
-            //}
+            //TODO (this is very slow ?)
+            for (Judgement judge : judgements) {
+                if (!judge.isAlive()) {
+                    judgements.removeValue(judge, true);
+                }
+                judgementFont.draw(batch, judge.j.name(), judge.xPos - RENDER_WIDTH/2, JUDGEMENT_HEIGHT, RENDER_WIDTH, Align.center, false);
+                judge.reduceLiveFrames();
+            }
 
             batch.draw(hitLine, 0, LINE_HEIGHT);
 

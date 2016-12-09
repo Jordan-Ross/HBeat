@@ -38,14 +38,14 @@ public class AudioController {
     public void loadSong() {
         //TODO: more songs and selection screen
         // This is a stream, i.e. not loaded in ram.
-        currentSong = Gdx.audio.newMusic(Gdx.files.internal("songs/daisy.mp3"));
+        currentSong = Gdx.audio.newMusic(Gdx.files.internal("songs/flower.mp3"));
         //currentSong.setLooping(true);
 
         // TODO: Add additional info to note array (x,y,speed, etc)
         // TODO: Make Hitcircle and Hitobject one thing ?
         // Parse map for data
         currentNotes = new Array<HitObject>();
-        FileHandle handle = Gdx.files.internal("songs/daisy.rbm");
+        FileHandle handle = Gdx.files.internal("songs/flower.rbm");
         String strings[] = handle.readString().split("\\r\\n");
         for (String string : strings) {
             currentNotes.add(new HitObject(string));
