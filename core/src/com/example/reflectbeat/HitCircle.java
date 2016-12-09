@@ -16,8 +16,9 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     private float xspeed, yspeed;
     private int x_direction; // 1 is right, -1 is left
     public boolean alive;
-    private final float hitbox_diff = 32;   // HitCircle touch tolerance
+    public long spawn_time;
 
+    private final float HITBOX_DIFF = 32;   // HitCircle touch tolerance
     int HIT_SPRITE_SIZE = GraphicsController.HIT_SPRITE_SIZE;
     int RENDER_WIDTH = GraphicsController.RENDER_WIDTH;
     int WIDTH_RIGHT_SPRITE = RENDER_WIDTH - HIT_SPRITE_SIZE;    // Max x pos a circle can spawn
@@ -66,7 +67,7 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         super.translate((float) x_direction * xAmount, yspeed * deltaTime);
     }
 
-    public void init(boolean fail, float xspeed, float yspeed, float xpos, float ypos) {
+    public void init(boolean fail, float xspeed, float yspeed, float xpos, float ypos, long spawn_time) {
         this.setTexture(fail ? GraphicsController.hitcircleFailTexture : GraphicsController.hitcircleTexture);
         setPosition(RENDER_WIDTH/2, RENDER_HEIGHT);
         this.xspeed = xspeed;
@@ -74,13 +75,15 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         this.setX(xpos);
         this.setY(ypos);
         alive = true;
+
+        this.spawn_time = spawn_time;
     }
 
     public boolean checkTouched(float x, float y) {
-        return x < this.getX() + HIT_SPRITE_SIZE + hitbox_diff &&
-                y < this.getY() + HIT_SPRITE_SIZE + hitbox_diff &&
-                x > this.getX() - hitbox_diff &&
-                y > this.getY() - hitbox_diff;
+        return x < this.getX() + HIT_SPRITE_SIZE + HITBOX_DIFF &&
+                y < this.getY() + HIT_SPRITE_SIZE + HITBOX_DIFF &&
+                x > this.getX() - HITBOX_DIFF &&
+                y > this.getY() - HITBOX_DIFF;
     }
 
     @Override

@@ -7,10 +7,10 @@ package com.example.reflectbeat;
 public class Explosion {
     public float xpos;
     public float stateTime;
-    public static float EXPLOSION_HEIGHT = 116;
+    public static final float EXPLOSION_SIZE = 116; // Size of sanicnew2x.png individual sprites
 
     Explosion(float xpos) {
-        this.xpos = xpos - EXPLOSION_HEIGHT /2;
+        this.xpos = xpos - EXPLOSION_SIZE /2;
         stateTime = 0f;
     }
 

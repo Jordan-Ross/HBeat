@@ -6,7 +6,6 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
-import com.sun.corba.se.impl.orbutil.graph.Graph;
 
 /**
  * Created by Jordan on 12/7/2016.
@@ -15,15 +14,23 @@ import com.sun.corba.se.impl.orbutil.graph.Graph;
 public class AudioController {
 
     private Music currentSong;
-    private Array<HitObject> currentNotes;
     private long currentSongPos;
 
     private float speed = 300;
-
     private long latency;
 
-    // TODO: Stop using constants you fuck
-    private long audioLeadInMS = (long)(((GraphicsController.RENDER_HEIGHT - GraphicsController.LINE_HEIGHT - 20) / speed) * 1000);    // Approx time to move down screen at speed 300
+    private Array<HitObject> currentNotes;
+    private static int note_index = 0;
+    private HitObject note;
+
+    // The time it takes for a note to move down screen at the single speed
+    // TODO: make this work for mixed note speeds
+    // Approx time to move down screen at speed
+    private long audioLeadInMS = (long)(((GraphicsController.RENDER_HEIGHT
+            - GraphicsController.LINE_HEIGHT
+            + GraphicsController.LINE_WIDTH/2
+            - GraphicsController.HIT_SPRITE_SIZE/2)
+                / speed) * 1000);
     private long currentSongStart;
 
     private Sound hitSound;
@@ -31,14 +38,14 @@ public class AudioController {
     public void loadSong() {
         //TODO: more songs and selection screen
         // This is a stream, i.e. not loaded in ram.
-        currentSong = Gdx.audio.newMusic(Gdx.files.internal("daisy.mp3"));
+        currentSong = Gdx.audio.newMusic(Gdx.files.internal("songs/joshiraku.mp3"));
         //currentSong.setLooping(true);
 
         // TODO: Add additional info to note array (x,y,speed, etc)
         // TODO: Make Hitcircle and Hitobject one thing ?
         // Parse map for data
         currentNotes = new Array<HitObject>();
-        FileHandle handle = Gdx.files.internal("daisy.rbm");
+        FileHandle handle = Gdx.files.internal("songs/joshiraku.rbm");
         String strings[] = handle.readString().split("\\r\\n");
         for (String string : strings) {
             currentNotes.add(new HitObject(string));
@@ -62,8 +69,7 @@ public class AudioController {
         }, audioLeadInMS / 1000f);
     }
 
-    public void processHitcircles(GraphicsController graphics_controller) {
-
+    public void updateSongTime() {
         //Manage song timing
         if (currentSong.isPlaying()) {
             currentSongPos = (long)(currentSong.getPosition() * 1000) + audioLeadInMS;
@@ -71,23 +77,32 @@ public class AudioController {
         else {
             currentSongPos = System.currentTimeMillis() - currentSongStart;
         }
+    }
 
-        int note_index = 0;
-        for (HitObject note : currentNotes) {
-            // Note needs to spawn at actual time - time to move down screen
-            //if ((currentSongPos +  latency > (note.time_ms-TIME_IT_TAKES_TO_MOVE_DOWN_SCREEN))) {
+    public void processHitcircles(GraphicsController graphics_controller) {
+
+        updateSongTime();
+
+        for (int k = note_index; k < currentNotes.size; k++) {
+            note = currentNotes.get(k);
             if ((currentSongPos > note.time_ms + latency)) {
                 // Spawn note, remove actual note from currentNotes
                 graphics_controller.spawnHitcircle(note);
                 currentNotes.removeIndex(note_index);
                 note_index++;
-
                 //Gdx.app.log("Created Note at", Float.toString(currentSong.getPosition()));
                 //Gdx.app.log("Created Note, delta", Float.toString(Gdx.graphics.getDeltaTime()));
             }
-            // All notes are in order. If the song isn't past the note (pos < time_ms), exit loop.
+            // All notes are in chrono order. When the song reaches a note it hasn't passed, exit loop.
             else break;
         }
+    }
+
+    // Judge a hit from inputcontroller
+    public void checkTiming(long spawnTime, float xpos) {
+        updateSongTime();
+        // Subtract lead in time to compare
+        Judgement.judgeNote(spawnTime, currentSongPos - audioLeadInMS, xpos);
     }
 
     private void initSounds() {

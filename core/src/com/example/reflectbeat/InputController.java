@@ -11,40 +11,32 @@ import java.util.Locale;
  * Handles touch input
  */
 public class InputController extends InputAdapter {
-
-    private GraphicsController graphicsController;
-    private AudioController audioController;
-
-    InputController(GraphicsController graphicsController, AudioController audioController) {
-        this.graphicsController = graphicsController;
-        this.audioController = audioController;
-    }
-
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
         //Gdx.app.log("touchDown", String.format(Locale.US, "Touch location: %d, %d", x, y));
         Vector2 transform = new Vector2(x, y);
-        transform = graphicsController.viewport.unproject(transform);
+        transform = ReflectBeat.graphicsController.viewport.unproject(transform);
         Gdx.app.log("touchDown", String.format(Locale.US,
                 "Touch location (Transformed): %f, %f", transform.x, transform.y));
 
-        //TODO: Improve this process
+        //TODO: IS THE TIMING BETTER WITH OR WITHOUT HITCIRCLE ASSIGNMENTS??????
         //This is going through *every* hitcircle on the screen to check for touch,
         //which is probably going to suck later (like when there are 100 circles to check)
-        int size = graphicsController.activeHitCircles.size;
+        int size = ReflectBeat.graphicsController.activeHitCircles.size;
         for (int i = 0; i < size; i++) {
-            // TODO: Calibrate hitboxes
-            if (graphicsController.checkInLineHitbox(transform.x, transform.y)) {
+            if (ReflectBeat.graphicsController.checkInLineHitbox(transform.x, transform.y)) {
                 //Tapped inside hitline, so check for hit_circle_pool
-                if (graphicsController.activeHitCircles.get(i).checkTouched(transform.x, transform.y)) {
+                if (ReflectBeat.graphicsController.activeHitCircles.get(i).checkTouched(transform.x, transform.y)) {
                     // Hitcircle was touched while one line
-                    audioController.playHitsound();
-                    graphicsController.activeExplosions.add(new Explosion(transform.x));
+                    ReflectBeat.audioController.playHitsound();
+                    ReflectBeat.graphicsController.activeExplosions.add(new Explosion(transform.x));
 
                     //Gdx.app.log("touchDown", "Hitcircle touched!");
-                    HitCircle hit = graphicsController.activeHitCircles.get(i);
+                    HitCircle hit = ReflectBeat.graphicsController.activeHitCircles.get(i);
+                    //TODO ReflectBeat.audioController.checkTiming(hit.spawn_time, transform.x);
                     // Remove hit
                     hit.alive = false;
+
 
                     ReflectBeat.incrementScore();
                     break;

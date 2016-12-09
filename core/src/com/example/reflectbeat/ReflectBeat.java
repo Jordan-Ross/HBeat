@@ -6,9 +6,15 @@ import com.badlogic.gdx.Gdx;
 public class ReflectBeat extends ApplicationAdapter {
 
 
-    private AudioController audioController;
-    private GraphicsController graphicsController;
+    public static AudioController audioController;
+    public static GraphicsController graphicsController;
 
+    /**
+     * TODO: There's a bug with score:
+     * if a note is missed but the next one is hit, the hit note
+     *   will _not_ be counted toward the new score because the note fail is below the line
+     *   and gets activated after the new hit note, resetting that hit.
+     */
     static public int score;
     static public String scoreStr; // Score in a converted string ?????
 
@@ -16,7 +22,7 @@ public class ReflectBeat extends ApplicationAdapter {
     public void create() {
         graphicsController = new GraphicsController();
         audioController = new AudioController();
-        Gdx.input.setInputProcessor(new InputController(graphicsController, audioController));
+        Gdx.input.setInputProcessor(new InputController());
 
         audioController.loadSong();
 

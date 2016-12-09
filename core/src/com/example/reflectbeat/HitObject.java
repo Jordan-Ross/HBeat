@@ -6,7 +6,7 @@ package com.example.reflectbeat;
  * time_ms,x_pos,y_pos,x_vel,y_vel
  */
 public class HitObject {
-    public int time_ms;
+    public long time_ms;
     public int x_pos;
     public int y_pos;
     public int x_vel;

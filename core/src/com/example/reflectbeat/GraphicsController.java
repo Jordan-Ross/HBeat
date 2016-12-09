@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
@@ -54,7 +55,16 @@ public class GraphicsController {
 
     private TextureRegion currentFrame;
 
-    BitmapFont font;
+    public static Texture timingJUST;
+    public static Texture timingGREAT;
+    public static Texture timingGOOD;
+    public static Texture timingMISS;
+
+    public Array<Judgement> judgements;
+    public float JUDGEMENT_HEIGHT = LINE_HEIGHT + LINE_WIDTH + 30;  // Height the judgement rating appears
+    BitmapFont judgementFont;
+
+    BitmapFont scoreFont;
 
     GraphicsController() {
         batch = new SpriteBatch();
@@ -66,7 +76,7 @@ public class GraphicsController {
 
         hitcircleTexture = new Texture("hitcircle.png");
         hitcircleFailTexture = new Texture("hitcircle_fail.png");
-        hitLineTexture = new Texture("hitline.png");
+        hitLineTexture = new Texture("hitline_red.png");
 
         // EXPLOSION
         explosion = new Texture("sanicnew2x.png");
@@ -95,10 +105,18 @@ public class GraphicsController {
         activeHitCircles = new Array<HitCircle>();
 
         random = new Random();
-        font = new BitmapFont();
         // TODO: Font could probably look a bit better
-        font = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
-        font.getData().setScale(1.5f);
+        scoreFont = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
+        judgementFont = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
+        scoreFont.getData().setScale(1.5f);
+        judgementFont.getData().setScale(.1f);
+
+        judgements = new Array<Judgement>();
+
+        //timingJUST = new Texture("");
+        //timingGREAT = new Texture("");
+        //timingGOOD = new Texture("");
+        //timingMISS = new Texture("");
     }
 
     public void processGraphics() {
@@ -111,13 +129,18 @@ public class GraphicsController {
         // Process Graphics
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-            font.draw(batch,
+            scoreFont.draw(batch,
                     ReflectBeat.scoreStr,
                     0,
                     camera.viewportHeight / 2,
                     RENDER_WIDTH,
                     Align.center,
                     false);
+
+            //TODO (this is very slow)
+            // for (Judgement judge : judgements) {
+            //    judgementFont.draw(batch, judge.j.name(), judge.xPos, JUDGEMENT_HEIGHT, RENDER_WIDTH, Align.center, false);
+            //}
 
             batch.draw(hitLine, 0, LINE_HEIGHT);
 
@@ -131,7 +154,7 @@ public class GraphicsController {
                     activeExplosions.removeValue(exp, true);
                 }
                 else {
-                    batch.draw(explosionAnimation.getKeyFrame(stateTime), exp.xpos, LINE_HEIGHT);
+                    batch.draw(explosionAnimation.getKeyFrame(stateTime), exp.xpos, LINE_HEIGHT + 20 - Explosion.EXPLOSION_SIZE/2);
                 }
             }
         batch.end();
@@ -141,7 +164,7 @@ public class GraphicsController {
 
     public void spawnHitcircle(HitObject note) {
         HitCircle hit = hitCirclePool.obtain();
-        hit.init(false, note.x_vel, note.y_vel, note.x_pos, note.y_pos);
+        hit.init(false, note.x_vel, note.y_vel, note.x_pos, note.y_pos, note.time_ms);
         activeHitCircles.add(hit);
     }
 
