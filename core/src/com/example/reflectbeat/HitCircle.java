@@ -91,8 +91,4 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         setPosition(0,0);
         alive = false;
     }
-
-    public void update (float delta) {
-
-    }
 }

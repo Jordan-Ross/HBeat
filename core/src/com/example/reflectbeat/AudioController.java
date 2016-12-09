@@ -38,14 +38,14 @@ public class AudioController {
     public void loadSong() {
         //TODO: more songs and selection screen
         // This is a stream, i.e. not loaded in ram.
-        currentSong = Gdx.audio.newMusic(Gdx.files.internal("songs/joshiraku.mp3"));
+        currentSong = Gdx.audio.newMusic(Gdx.files.internal("songs/daisy.mp3"));
         //currentSong.setLooping(true);
 
         // TODO: Add additional info to note array (x,y,speed, etc)
         // TODO: Make Hitcircle and Hitobject one thing ?
         // Parse map for data
         currentNotes = new Array<HitObject>();
-        FileHandle handle = Gdx.files.internal("songs/joshiraku.rbm");
+        FileHandle handle = Gdx.files.internal("songs/daisy.rbm");
         String strings[] = handle.readString().split("\\r\\n");
         for (String string : strings) {
             currentNotes.add(new HitObject(string));
@@ -88,7 +88,7 @@ public class AudioController {
             if ((currentSongPos > note.time_ms + latency)) {
                 // Spawn note, remove actual note from currentNotes
                 graphics_controller.spawnHitcircle(note);
-                currentNotes.removeIndex(note_index);
+                //currentNotes.removeIndex(note_index);
                 note_index++;
                 //Gdx.app.log("Created Note at", Float.toString(currentSong.getPosition()));
                 //Gdx.app.log("Created Note, delta", Float.toString(Gdx.graphics.getDeltaTime()));
@@ -102,7 +102,7 @@ public class AudioController {
     public void checkTiming(long spawnTime, float xpos) {
         updateSongTime();
         // Subtract lead in time to compare
-        Judgement.judgeNote(spawnTime, currentSongPos - audioLeadInMS, xpos);
+        Judgement.judgeNote(spawnTime, currentSongPos - audioLeadInMS + latency, xpos);
     }
 
     private void initSounds() {

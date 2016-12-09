@@ -55,11 +55,6 @@ public class GraphicsController {
 
     private TextureRegion currentFrame;
 
-    public static Texture timingJUST;
-    public static Texture timingGREAT;
-    public static Texture timingGOOD;
-    public static Texture timingMISS;
-
     public Array<Judgement> judgements;
     public float JUDGEMENT_HEIGHT = LINE_HEIGHT + LINE_WIDTH + 30;  // Height the judgement rating appears
     BitmapFont judgementFont;
@@ -112,11 +107,6 @@ public class GraphicsController {
         judgementFont.getData().setScale(.1f);
 
         judgements = new Array<Judgement>();
-
-        //timingJUST = new Texture("");
-        //timingGREAT = new Texture("");
-        //timingGOOD = new Texture("");
-        //timingMISS = new Texture("");
     }
 
     public void processGraphics() {

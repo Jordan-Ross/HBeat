@@ -21,11 +21,6 @@ public class HitObject {
         this.y_vel = y_vel;
     }
 
-    // Current (unimplemented velocity) version
-    HitObject(int time_ms, int x_pos, int y_pos) {
-        this(time_ms, x_pos, y_pos, 0, 0);
-    }
-
     // Read in map data from a string
     // Formatted as ',' separated integers
     HitObject(String str) {
