@@ -12,7 +12,6 @@ import java.util.Locale;
  * Handles touch input
  */
 public class InputController extends InputAdapter {
-    private int tempScore;
 
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
@@ -23,30 +22,21 @@ public class InputController extends InputAdapter {
                 "Touch location (Transformed): %f, %f", transform.x, transform.y));
 
         //TODO: IS THE TIMING BETTER WITH OR WITHOUT HITCIRCLE ASSIGNMENTS??????
-        //This is going through *every* hitcircle on the screen to check for touch,
-        //which is probably going to suck later (like when there are 100 circles to check)
-        int size = GameScreen.graphicsController.activeHitCircles.size;
-        for (int i = 0; i < size; i++) {
-            if (GameScreen.graphicsController.checkInLineHitbox(transform.x, transform.y)) {
-                //Tapped inside hitline, so check for hit_circle_pool
-                if (GameScreen.graphicsController.activeHitCircles.get(i).checkTouched(transform.x, transform.y)) {
-                    // Hitcircle was touched while one line
-                    GameScreen.audioController.playHitsound();
-                    GameScreen.graphicsController.activeExplosions.add(new Explosion(transform.x));
+        for (HitCircle hit : GameScreen.graphicsController.activeHitCircles) {
+            if (!hit.fail
+                    && GameScreen.graphicsController.checkInLineHitbox(transform.x, transform.y)
+                    && hit.checkTouched(transform.x, transform.y)) {
+                //Tapped inside hitline and HitCircle hit
+                GameScreen.audioController.playHitsound();
+                GameScreen.graphicsController.activeExplosions.add(new Explosion(transform.x));
+                //Gdx.app.log("touchDown", "Hitcircle touched!");
 
-                    //Gdx.app.log("touchDown", "Hitcircle touched!");
-                    HitCircle hit = GameScreen.graphicsController.activeHitCircles.get(i);
+                // Timing of hit gives the number added to score (see readme)
+                GameScreen.incrementScore(GameScreen.audioController.checkTiming(hit.spawn_time, transform.x));
 
-                    // Timing of hit gives the number added to score (see readme)
-                    tempScore = GameScreen.audioController.checkTiming(hit.spawn_time, transform.x);
-
-                    // Remove hit
-                    hit.alive = false;
-
-
-                    GameScreen.incrementScore(tempScore);
-                    break;
-                }
+                // Remove hit
+                hit.alive = false;
+                break;
             }
 
         }
