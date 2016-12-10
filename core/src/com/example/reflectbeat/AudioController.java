@@ -20,9 +20,9 @@ public class AudioController {
     private long songGraphicsLatency;
     private long timingLatency;
 
-    private Array<HitObject> currentNotes;
+    private Array<HitCircle> currentNotes;
     private static int note_index;
-    private HitObject note;
+    private HitCircle note;
 
     // The time it takes for a note to move down screen at the single speed
     // TODO: make this work for mixed note speeds
@@ -45,11 +45,11 @@ public class AudioController {
         // TODO: Add additional info to note array (x,y,speed, etc)
         // TODO: Make Hitcircle and Hitobject one thing ?
         // Parse map for data
-        currentNotes = new Array<HitObject>();
+        currentNotes = new Array<HitCircle>();
         FileHandle handle = Gdx.files.internal("songs/flower.rbm");
         String strings[] = handle.readString().split("\\r\\n");
         for (String string : strings) {
-            currentNotes.add(new HitObject(string));
+            currentNotes.add(new HitCircle(string));
         }
 
         Gdx.app.log("currentNotes: ", Integer.toString(currentNotes.size));
@@ -93,7 +93,7 @@ public class AudioController {
 
         for (int k = note_index; k < currentNotes.size; k++) {
             note = currentNotes.get(k);
-            if ((currentSongPos > note.time_ms + songGraphicsLatency)) {
+            if ((currentSongPos > note.spawn_time + songGraphicsLatency)) {
                 // Spawn note, remove actual note from currentNotes
                 // Note, currentSongPos is the time of spawn, currentSongPos + audioLeadInMS is the expected time of hit
                 GameScreen.graphicsController.spawnHitcircle(note);

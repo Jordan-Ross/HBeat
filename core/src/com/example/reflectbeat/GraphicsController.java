@@ -76,6 +76,7 @@ public class GraphicsController {
         hitLineTexture = new Texture("hitline_red.png");
 
         // EXPLOSION
+        // TODO: Less copyright infringement
         explosion = new Texture("sanicnew2x.png");
         TextureRegion[][] temp = TextureRegion.split(explosion, explosion.getWidth() / FRAME_COLS, explosion.getHeight() / FRAME_ROWS);
         explosionFrames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
@@ -180,9 +181,10 @@ public class GraphicsController {
         removeHitcircles();
     }
 
-    public void spawnHitcircle(HitObject note) {
+    public void spawnHitcircle(HitCircle note) {
         HitCircle hit = hitCirclePool.obtain();
-        hit.init(true, false, -1, note.x_vel, note.y_vel, note.x_pos, note.y_pos, note.time_ms);
+        hit.initActive(note);
+        //hit.init(true, false, -1, note.x_vel, note.y_vel, note.x_pos, note.y_pos, note.time_ms);
         activeHitCircles.add(hit);
         //Gdx.app.log("spawnHitcircle", String.format(Locale.US, "x : %f, y : %f, dir: %d", hit.getX(), hit.getY(), hit.x_direction));
     }

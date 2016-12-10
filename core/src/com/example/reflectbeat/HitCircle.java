@@ -35,6 +35,31 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         this.alive = false;
     }
 
+    /***
+     * Temporary (NON-INITIALIZED DO NOT RENDER) HitCircle with a string of map data, to be used for
+     *  initializing real HitCircles (from the pool in graphicsController)
+     * @param str HitCircle data formatted as "spawn_time,x_pos,x_vel,y_vel"
+     */
+    HitCircle(String str) {
+        String arr[] = str.split(",");
+        spawn_time = (long)Float.parseFloat(arr[0]);
+        // TODO: (!!!) something is causing the circles to get stuck to the wall again, probably more timing based rather than caused by anything here
+        setX((Integer.parseInt(arr[1]) %
+                (HitCircle.MAX_X - HitCircle.MIN_X))
+                + HitCircle.MIN_X);
+        //x_vel = Integer.parseInt(arr[2]);
+        //y_vel = Integer.parseInt(arr[3]);
+        if (getX() > HitCircle.MAX_X) {
+            setX(HitCircle.MAX_X);
+        }
+        setY(ReflectBeat.RENDER_HEIGHT);
+        this.xspeed = 200;    // TODO: no constants pls
+        this.yspeed = -300;
+
+        alive = false;
+        fail = false;
+    }
+
     // Unused Constructors
     public HitCircle(boolean fail, float x, float y, int xdir, float xspeed, float yspeed) {
         super();
@@ -60,6 +85,10 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         // Rotates the circles while they move (looks kinda interesting)
         //setRotation(getRotation() + x_direction * -4);
         super.translate((float) x_direction * xAmount, yspeed * deltaTime);
+    }
+
+    public void initActive(HitCircle other) {
+        init(true, false, 1, other.xspeed, other.yspeed, other.getX(), other.getY(), other.spawn_time);
     }
 
     // TODO: this is only being called with fail=false, should this be removed?
