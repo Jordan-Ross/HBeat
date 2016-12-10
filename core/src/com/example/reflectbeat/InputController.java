@@ -11,6 +11,8 @@ import java.util.Locale;
  * Handles touch input
  */
 public class InputController extends InputAdapter {
+    int tempScore;
+
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
         //Gdx.app.log("touchDown", String.format(Locale.US, "Touch location: %d, %d", x, y));
@@ -36,12 +38,12 @@ public class InputController extends InputAdapter {
                     //TODO TIMING, ADJUST SCORE INCREMENT TO BE DEPENDANT ON THE TIMING OF THE NOTE
                     // I.e., Get a return value from checkTiming below, then pass that to incrementScore
                     // The return value will be 1-3 depending on judgement
-                    ReflectBeat.audioController.checkTiming(hit.spawn_time, transform.x);
+                    tempScore = ReflectBeat.audioController.checkTiming(hit.spawn_time, transform.x);
                     // Remove hit
                     hit.alive = false;
 
 
-                    ReflectBeat.incrementScore();
+                    ReflectBeat.incrementScore(tempScore);
                     break;
                 }
             }

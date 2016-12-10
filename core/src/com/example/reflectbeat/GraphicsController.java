@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.BooleanArray;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -32,11 +33,11 @@ public class GraphicsController {
     private Pool<HitCircle> hitCirclePool;
     public Array<HitCircle> activeHitCircles;
 
-    public static final int RENDER_WIDTH = 540;
-    public static final int RENDER_HEIGHT = 960;
-    public static final int LINE_HEIGHT = 150;
-    public static final int LINE_WIDTH = 40;
-    public static final int HIT_SPRITE_SIZE = 64;
+    public static final float RENDER_WIDTH = 540;
+    public static final float RENDER_HEIGHT = 960;
+    public static final float LINE_HEIGHT = 150;
+    public static final float LINE_WIDTH = 40;
+    public static final float HIT_SPRITE_SIZE = 64;
 
     private SpriteBatch batch;
     private Sprite hitLine;
@@ -58,6 +59,9 @@ public class GraphicsController {
     public Array<Judgement> judgements;
     public float JUDGEMENT_HEIGHT = LINE_HEIGHT + LINE_WIDTH + 30;  // Height the judgement rating appears
     BitmapFont judgementFont;
+    Array<Float> judgePositions;// = {RENDER_WIDTH/3f, RENDER_WIDTH/2f, RENDER_WIDTH * (2f/3f)};
+    private Array<Texture> judgeTextures;
+    private int textureIndex;
 
     BitmapFont scoreFont;
 
@@ -107,6 +111,26 @@ public class GraphicsController {
         judgementFont.getData().setScale(.2f);
 
         judgements = new Array<Judgement>();
+        judgements.add(new Judgement());
+        judgements.add(new Judgement());
+        judgements.add(new Judgement());
+
+        judgeTextures = new Array<Texture>();
+        judgeTextures.add(new Texture(Gdx.files.internal("JUST_downscale.png")));
+        judgeTextures.add(new Texture(Gdx.files.internal("GREAT_downscale.png")));
+        judgeTextures.add(new Texture(Gdx.files.internal("GOOD_downscale.png")));
+        judgeTextures.add(new Texture(Gdx.files.internal("MISS_downscale.png")));
+
+        // The Judgement is desplayed in 3 fixed screen positions defined below
+        // judgeAtPos is needed to tell if there's a judgement at a position already being drawn
+        // This prevents a bug where there are two judgements overlapping, which looks bad and
+        //      is hard to read.
+        judgePositions = new Array<Float>();
+        judgePositions.add(RENDER_WIDTH/5f - (judgeTextures.get(0).getWidth()/2));
+        judgePositions.add(RENDER_WIDTH/2f - (judgeTextures.get(0).getWidth()/2));
+        judgePositions.add(RENDER_WIDTH * (4f/5f) - (judgeTextures.get(0).getWidth()/2));
+
+
     }
 
     public void processGraphics() {
@@ -129,11 +153,11 @@ public class GraphicsController {
 
             //TODO (this is very slow ?)
             for (Judgement judge : judgements) {
-                if (!judge.isAlive()) {
-                    judgements.removeValue(judge, true);
+                if (judge.isAlive()) {
+                    textureIndex = judge.j.ordinal();
+                    batch.draw(judgeTextures.get(textureIndex), judgePositions.get(judge.index), JUDGEMENT_HEIGHT);
+                    judge.reduceLiveFrames();
                 }
-                judgementFont.draw(batch, judge.j.name(), judge.xPos - RENDER_WIDTH/2, JUDGEMENT_HEIGHT, RENDER_WIDTH, Align.center, false);
-                judge.reduceLiveFrames();
             }
 
             batch.draw(hitLine, 0, LINE_HEIGHT);

@@ -99,10 +99,10 @@ public class AudioController {
     }
 
     // Judge a hit from inputcontroller
-    public void checkTiming(long spawnTime, float xpos) {
+    public int checkTiming(long spawnTime, float xpos) {
         updateSongTime();
         // Subtract lead in time to compare
-        Judgement.judgeNote(spawnTime, currentSongPos - audioLeadInMS + latency, xpos);
+        return Judgement.judgeNote(spawnTime, currentSongPos - audioLeadInMS + latency, xpos);
     }
 
     private void initSounds() {

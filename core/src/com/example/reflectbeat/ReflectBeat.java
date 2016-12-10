@@ -1,9 +1,10 @@
 package com.example.reflectbeat;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 
-public class ReflectBeat extends ApplicationAdapter {
+public class ReflectBeat extends Game {
 
 
     public static AudioController audioController;
@@ -17,6 +18,7 @@ public class ReflectBeat extends ApplicationAdapter {
      */
     static public int score;
     static public String scoreStr; // Score in a converted string ?????
+    static public int combo; //TODO
 
     @Override
     public void create() {
@@ -47,8 +49,8 @@ public class ReflectBeat extends ApplicationAdapter {
         graphicsController.dispose();
     }
 
-    public static void incrementScore() {
-        score++;
+    public static void incrementScore(int points) {
+        score += points;
         scoreStr = Integer.toString(score);
     }
 

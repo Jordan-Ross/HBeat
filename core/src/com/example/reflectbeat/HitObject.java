@@ -7,13 +7,13 @@ package com.example.reflectbeat;
  */
 public class HitObject {
     public long time_ms;
-    public int x_pos;
-    public int y_pos;
-    public int x_vel;
-    public int y_vel;
+    public float x_pos;
+    public float y_pos;
+    public float x_vel;
+    public float y_vel;
 
     // Full
-    HitObject(int time_ms, int x_pos, int y_pos, int x_vel, int  y_vel) {
+    HitObject(int time_ms, float x_pos, float y_pos, float x_vel, float  y_vel) {
         this.time_ms = time_ms;
         this.x_pos = x_pos;
         this.y_pos = y_pos;
@@ -25,7 +25,7 @@ public class HitObject {
     // Formatted as ',' separated integers
     HitObject(String str) {
         String arr[] = str.split(",");
-        time_ms = (int)Float.parseFloat(arr[0]);
+        time_ms = (long)Float.parseFloat(arr[0]);
         x_pos = (Integer.parseInt(arr[1]) %
                 (GraphicsController.RENDER_WIDTH - 2 * GraphicsController.HIT_SPRITE_SIZE))
                 + GraphicsController.HIT_SPRITE_SIZE;
