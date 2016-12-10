@@ -11,7 +11,7 @@ import java.util.Locale;
  * Handles touch input
  */
 public class InputController extends InputAdapter {
-    int tempScore;
+    private int tempScore;
 
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
@@ -35,10 +35,10 @@ public class InputController extends InputAdapter {
 
                     //Gdx.app.log("touchDown", "Hitcircle touched!");
                     HitCircle hit = ReflectBeat.graphicsController.activeHitCircles.get(i);
-                    //TODO TIMING, ADJUST SCORE INCREMENT TO BE DEPENDANT ON THE TIMING OF THE NOTE
-                    // I.e., Get a return value from checkTiming below, then pass that to incrementScore
-                    // The return value will be 1-3 depending on judgement
+
+                    // Timing of hit gives the number added to score (see readme)
                     tempScore = ReflectBeat.audioController.checkTiming(hit.spawn_time, transform.x);
+
                     // Remove hit
                     hit.alive = false;
 

@@ -9,10 +9,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.BooleanArray;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -41,7 +39,7 @@ public class GraphicsController {
 
     private SpriteBatch batch;
     private Sprite hitLine;
-    public static final int hitLine_tolerance = 40;
+    public static final int HIT_LINE_TOLERANCE = 40;
 
     public static Texture hitcircleTexture;
     public static Texture hitcircleFailTexture;
@@ -63,7 +61,7 @@ public class GraphicsController {
     private Array<Texture> judgeTextures;
     private int textureIndex;
 
-    BitmapFont scoreFont;
+    private BitmapFont scoreFont;
 
     /***
      * Initialize everything
@@ -111,6 +109,8 @@ public class GraphicsController {
         // TODO: Font could probably look a bit better
         scoreFont = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
         scoreFont.getData().setScale(1.5f);
+        // TODO: Set font color in a way that actually works (so probably go and change some files)
+        //scoreFont.setColor(215, 115, 150, 0.5f);
         //judgementFont = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
         //judgementFont.getData().setScale(.2f);
 
@@ -189,7 +189,6 @@ public class GraphicsController {
         activeHitCircles.add(hit);
     }
 
-
     /***
      * Check if a touch happened on the line, incorporating tolerance
      * TODO: Rely on timing check more instead. (i.e. don't use this at all, just tag circle as 'hit' if it's within timing constraints)
@@ -198,21 +197,8 @@ public class GraphicsController {
      * @return true if inside hitbox of line
      */
     public boolean checkInLineHitbox(float x, float y) {
-        return y < hitLine.getY() + hitLine.getHeight() + hitLine_tolerance &&
-                    y > hitLine.getY() - hitLine_tolerance;
-    }
-
-    /***
-     * Removes all dead hitcircles from the active array
-     * Tags them as free within the pool
-     */
-    private void removeHitcircles() {
-        for (HitCircle hit : activeHitCircles) {
-            if (!hit.alive) {
-                activeHitCircles.removeValue(hit, true);
-                hitCirclePool.free(hit);
-            }
-        }
+        return y < hitLine.getY() + hitLine.getHeight() + HIT_LINE_TOLERANCE &&
+                    y > hitLine.getY() - HIT_LINE_TOLERANCE;
     }
 
     /***
@@ -226,17 +212,33 @@ public class GraphicsController {
             //Gdx.app.log("moveHitcircles", Long.toString(test));
 
             // If hitcircle passed below line
-            if (hit.getY() < LINE_HEIGHT - HIT_SPRITE_SIZE) {
+            if (hit.getY() < LINE_HEIGHT - HIT_LINE_TOLERANCE) {
                 if (hit.getY() < -HIT_SPRITE_SIZE) {
                     // Below Screen (Remove hitcircle)
                     hit.alive = false;
                     //spawnHitcircle(0, -speed);
                 }
-                else {
+                else if (!hit.fail){
                     // Just below line (Hit fail)
                     hit.setTexture(hitcircleFailTexture);
-                    ReflectBeat.resetScore();
+                    //ReflectBeat.resetScore();
+                    ReflectBeat.incrementScore(-3);
+                    Judgement.spawnJudgement(Judgement.calculateIndex(hit.getX()), Judgement.Judge.MISS);
+                    hit.fail = true;
                 }
+            }
+        }
+    }
+
+    /***
+     * Removes all dead hitcircles from the active array
+     * Tags them as free within the pool
+     */
+    private void removeHitcircles() {
+        for (HitCircle hit : activeHitCircles) {
+            if (!hit.alive) {
+                activeHitCircles.removeValue(hit, true);
+                hitCirclePool.free(hit);
             }
         }
     }

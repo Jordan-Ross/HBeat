@@ -16,6 +16,7 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     private float xspeed, yspeed;
     private int x_direction; // 1 is right, -1 is left
     public boolean alive;
+    public boolean fail;
     public long spawn_time;
 
     private final float HITBOX_DIFF = 32;   // HitCircle touch tolerance
@@ -45,6 +46,7 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         this.yspeed = yspeed;
 
         this.alive = false;
+        this.fail = false;
 
         Gdx.app.log("HitCircle constructor", String.format(Locale.US, "x: %f   y: %f    xdir: %d",
                 getX(), getY(), x_direction));
@@ -67,6 +69,7 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         super.translate((float) x_direction * xAmount, yspeed * deltaTime);
     }
 
+    // TODO: this is only being called with fail=false, should this be removed?
     public void init(boolean fail, float xspeed, float yspeed, float xpos, float ypos, long spawn_time) {
         this.setTexture(fail ? GraphicsController.hitcircleFailTexture : GraphicsController.hitcircleTexture);
         setPosition(RENDER_WIDTH/2, RENDER_HEIGHT);
@@ -75,6 +78,7 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         this.setX(xpos);
         this.setY(ypos);
         alive = true;
+        this.fail = false;
 
         this.spawn_time = spawn_time;
     }

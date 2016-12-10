@@ -17,7 +17,8 @@ public class AudioController {
     private long currentSongPos;
 
     private float speed = 300;
-    private long latency;
+    private long songGraphicsLatency;
+    private long timingLatency;
 
     private Array<HitObject> currentNotes;
     private static int note_index = 0;
@@ -53,8 +54,11 @@ public class AudioController {
 
         //TODO: fix latency
         // Manually tweaked for now
-        //latency = -2800;
-        latency = -50;  //ms
+        //songGraphicsLatency = -50;  //ms
+        songGraphicsLatency = -100;
+        songGraphicsLatency -= GraphicsController.HIT_SPRITE_SIZE/2;
+
+        timingLatency = 40;
 
         initSounds();
 
@@ -79,15 +83,16 @@ public class AudioController {
         }
     }
 
-    public void processHitcircles(GraphicsController graphics_controller) {
+    public void processHitcircles() {
 
         updateSongTime();
 
         for (int k = note_index; k < currentNotes.size; k++) {
             note = currentNotes.get(k);
-            if ((currentSongPos > note.time_ms + latency)) {
+            if ((currentSongPos > note.time_ms + songGraphicsLatency)) {
                 // Spawn note, remove actual note from currentNotes
-                graphics_controller.spawnHitcircle(note);
+                // Note, currentSongPos is the time of spawn, currentSongPos + audioLeadInMS is the expected time of hit
+                ReflectBeat.graphicsController.spawnHitcircle(note);
                 //currentNotes.removeIndex(note_index);
                 note_index++;
                 //Gdx.app.log("Created Note at", Float.toString(currentSong.getPosition()));
@@ -102,7 +107,7 @@ public class AudioController {
     public int checkTiming(long spawnTime, float xpos) {
         updateSongTime();
         // Subtract lead in time to compare
-        return Judgement.judgeNote(spawnTime, currentSongPos - audioLeadInMS + latency, xpos);
+        return Judgement.judgeNote(spawnTime, currentSongPos - audioLeadInMS + 40, xpos);
     }
 
     private void initSounds() {

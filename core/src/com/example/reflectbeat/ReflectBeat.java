@@ -33,7 +33,7 @@ public class ReflectBeat extends Game {
 
     @Override
     public void render() {
-        audioController.processHitcircles(graphicsController);
+        audioController.processHitcircles();
         graphicsController.processGraphics();
     }
 
