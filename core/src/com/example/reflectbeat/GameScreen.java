@@ -5,6 +5,8 @@ import com.badlogic.gdx.Screen;
 
 /**
  * Created by Jordan on 12/10/2016.
+ * Base class for game screen
+ * TODO: why is home button and back button functionality different?
  */
 
 public class GameScreen implements Screen {

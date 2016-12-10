@@ -21,7 +21,7 @@ public class AudioController {
     private long timingLatency;
 
     private Array<HitObject> currentNotes;
-    private static int note_index = 0;
+    private static int note_index;
     private HitObject note;
 
     // The time it takes for a note to move down screen at the single speed
@@ -52,15 +52,18 @@ public class AudioController {
             currentNotes.add(new HitObject(string));
         }
 
-        //TODO: fix latency
+        Gdx.app.log("currentNotes: ", Integer.toString(currentNotes.size));
+
+        //TODO: Improve latency calculations
         // Manually tweaked for now
-        //songGraphicsLatency = -50;  //ms
-        songGraphicsLatency = -100;
+        songGraphicsLatency = -100; // ms
         songGraphicsLatency -= GraphicsController.HIT_SPRITE_SIZE/2;
 
-        timingLatency = 40;
+        timingLatency = 40; // ms
 
         initSounds();
+
+        note_index = 0;
 
         currentSongPos = 0;
         currentSongStart = System.currentTimeMillis();
@@ -96,7 +99,7 @@ public class AudioController {
                 GameScreen.graphicsController.spawnHitcircle(note);
                 //currentNotes.removeIndex(note_index);
                 note_index++;
-                //Gdx.app.log("Created Note at", Float.toString(currentSong.getPosition()));
+                //Gdx.app.log("Created Note at", Float.toString(currentSongPos));
                 //Gdx.app.log("Created Note, delta", Float.toString(Gdx.graphics.getDeltaTime()));
             }
             // All notes are in chrono order. When the song reaches a note it hasn't passed, exit loop.
@@ -118,5 +121,7 @@ public class AudioController {
     public void playHitsound() {
         hitSound.play();
     }
+
+
 }
 

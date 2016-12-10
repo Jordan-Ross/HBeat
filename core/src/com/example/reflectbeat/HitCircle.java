@@ -14,7 +14,10 @@ import java.util.Locale;
 public class HitCircle extends Sprite implements Pool.Poolable {
 
     private float xspeed, yspeed;
-    private int x_direction; // 1 is right, -1 is left
+    //private int x_direction; // 1 is right, -1 is left
+    // TODO: only public for now
+    public int x_direction; // 1 is right, -1 is left
+
     public boolean alive;
     public boolean fail;
     public long spawn_time;
@@ -26,14 +29,43 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     public static float MIN_X = 0;     // Min x pos a circle can spawn
     public static float MAX_X = RENDER_WIDTH - HIT_SPRITE_SIZE;    // Max x pos a circle can spawn
 
-    public HitCircle(boolean fail, int xdir) {
-        super(fail ? GraphicsController.hitcircleFailTexture : GraphicsController.hitcircleTexture);
-        x_direction = xdir;
+    public HitCircle() {
+        super(GraphicsController.hitcircleTexture);
+        init(false, false, 0, 0, 0, 0, 0, 0);
+        this.alive = false;
     }
 
+    // Unused Constructors
     public HitCircle(boolean fail, float x, float y, int xdir, float xspeed, float yspeed) {
-        this(fail, xdir);
-        this.setPosition(x, y);
+        super();
+        init(false, fail, xdir, xspeed, yspeed, x, y, 0);
+
+        //Gdx.app.log("HitCircle constructor", String.format(Locale.US, "x: %f   y: %f    xdir: %d",
+        //        getX(), getY(), x_direction));
+    }
+
+    public HitCircle(boolean fail, float x, float y, int xdir) {
+        this(fail, x, y, xdir, 0, -300);
+    }
+
+    public void moveCircle(float deltaTime) {
+        float xAmount = xspeed * deltaTime;
+        Gdx.app.log("moveCircle", String.format(Locale.US, "Before: x_dir: %d", x_direction));
+        // *boing*
+        if (getX() + xAmount > MAX_X
+                || getX() - xAmount < MIN_X) {
+            x_direction *= -1;
+        }
+        Gdx.app.log("moveCircle", String.format(Locale.US, "After:  X: %f   xAmt: %f    x_dir: %d", getX(), xAmount, x_direction));
+        // Rotates the circles while they move (looks kinda interesting)
+        //setRotation(getRotation() + x_direction * -4);
+        super.translate((float) x_direction * xAmount, yspeed * deltaTime);
+    }
+
+    // TODO: this is only being called with fail=false, should this be removed?
+    public void init(boolean alive, boolean fail, int xdir, float xspeed, float yspeed, float xpos, float ypos, long spawn_time) {
+        this.setTexture(fail ? GraphicsController.hitcircleFailTexture : GraphicsController.hitcircleTexture);
+        //setPosition(RENDER_WIDTH/2, RENDER_HEIGHT);
 
         // Reverses direction if too close to one edge on spawn
         if (this.getX() < MIN_X)
@@ -45,41 +77,11 @@ public class HitCircle extends Sprite implements Pool.Poolable {
 
         this.xspeed = xspeed;
         this.yspeed = yspeed;
-
-        this.alive = false;
-        this.fail = false;
-
-        Gdx.app.log("HitCircle constructor", String.format(Locale.US, "x: %f   y: %f    xdir: %d",
-                getX(), getY(), x_direction));
-    }
-
-    public HitCircle(boolean fail, float x, float y, int xdir) {
-        this(fail, x, y, xdir, 0, -300);
-    }
-
-    public void moveCircle(float deltaTime) {
-        float xAmount = xspeed * deltaTime;
-
-        // *boing*
-        if (getX() + xAmount > MAX_X
-                || getX() - xAmount < MIN_X) {
-            x_direction *= -1;
-        }
-        // Warning: don't use this it's dumb (but looks interesting)
-        //setRotation(getRotation() + x_direction * -4);
-        super.translate((float) x_direction * xAmount, yspeed * deltaTime);
-    }
-
-    // TODO: this is only being called with fail=false, should this be removed?
-    public void init(boolean fail, float xspeed, float yspeed, float xpos, float ypos, long spawn_time) {
-        this.setTexture(fail ? GraphicsController.hitcircleFailTexture : GraphicsController.hitcircleTexture);
-        setPosition(RENDER_WIDTH/2, RENDER_HEIGHT);
-        this.xspeed = xspeed;
-        this.yspeed = yspeed;
-        this.setX(xpos);
-        this.setY(ypos);
-        alive = true;
-        this.fail = false;
+        //this.setPosition(xpos, ypos);
+        setX(xpos);
+        setY(ypos);
+        this.alive = alive;
+        this.fail = fail;
 
         this.spawn_time = spawn_time;
     }

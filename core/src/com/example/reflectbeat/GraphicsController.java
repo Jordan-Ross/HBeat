@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.Locale;
 import java.util.Random;
 
 /**
@@ -99,7 +100,8 @@ public class GraphicsController {
         hitCirclePool = new Pool<HitCircle>() {
             @Override
             protected HitCircle newObject() {
-                return new  HitCircle(false, random.nextBoolean() ? 1 : -1);
+                //return new  HitCircle(false, random.nextBoolean() ? 1 : -1);
+                return new  HitCircle();
             }
         };
 
@@ -164,7 +166,8 @@ public class GraphicsController {
 
             // Render all circles
             for (HitCircle hit : activeHitCircles) {
-                hit.draw(batch);
+                if (hit.alive)
+                    hit.draw(batch);
             }
 
             // Render active explosion animations
@@ -185,8 +188,9 @@ public class GraphicsController {
 
     public void spawnHitcircle(HitObject note) {
         HitCircle hit = hitCirclePool.obtain();
-        hit.init(false, note.x_vel, note.y_vel, note.x_pos, note.y_pos, note.time_ms);
+        hit.init(true, false, -1, note.x_vel, note.y_vel, note.x_pos, note.y_pos, note.time_ms);
         activeHitCircles.add(hit);
+        //Gdx.app.log("spawnHitcircle", String.format(Locale.US, "x : %f, y : %f, dir: %d", hit.getX(), hit.getY(), hit.x_direction));
     }
 
     /***
