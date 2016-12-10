@@ -91,7 +91,7 @@ public class Judgement {
      * @return index of position
      */
     public static int calculateIndex(float x) {
-        return (int) (x / (GameScreen.graphicsController.RENDER_WIDTH/3));
+        return (int) (x / (ReflectBeat.RENDER_WIDTH/3));
     }
 
     public static void spawnJudgement(int index, Judge judge) {

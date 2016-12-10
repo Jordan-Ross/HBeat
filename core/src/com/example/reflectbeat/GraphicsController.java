@@ -24,26 +24,20 @@ import java.util.Random;
  */
 public class GraphicsController {
 
-    private Random random;
-
+    private SpriteBatch batch;
     public Viewport viewport;
     private OrthographicCamera camera;
 
     private Pool<HitCircle> hitCirclePool;
     public Array<HitCircle> activeHitCircles;
-
-    public static final float RENDER_WIDTH = 540;
-    public static final float RENDER_HEIGHT = 960;
     public static final float LINE_HEIGHT = 150;
     public static final float LINE_WIDTH = 40;
     public static final float HIT_SPRITE_SIZE = 64;
-
-    private SpriteBatch batch;
-    private Sprite hitLine;
-    public static final int HIT_LINE_TOLERANCE = 40;
-
     public static Texture hitcircleTexture;
     public static Texture hitcircleFailTexture;
+
+    private Sprite hitLine;
+    public static final int HIT_LINE_TOLERANCE = 40;
     private Texture hitLineTexture;
 
     private Texture explosion;
@@ -52,8 +46,11 @@ public class GraphicsController {
     TextureRegion[] explosionFrames;
     private Animation explosionAnimation;
     public Array<Explosion> activeExplosions;
+    //private TextureRegion currentFrame;
 
-    private TextureRegion currentFrame;
+    private Random random;
+
+    private BitmapFont scoreFont;
 
     public Array<Judgement> judgements;
     public float JUDGEMENT_HEIGHT = LINE_HEIGHT + LINE_WIDTH + 30;  // Height the judgement rating appears
@@ -62,8 +59,6 @@ public class GraphicsController {
     private Array<Texture> judgeTextures;
     private int textureIndex;
 
-    private BitmapFont scoreFont;
-
     /***
      * Initialize everything
      * TODO: make this less of a clusterfuck
@@ -71,10 +66,10 @@ public class GraphicsController {
     GraphicsController() {
         batch = new SpriteBatch();
         Gdx.graphics.setContinuousRendering(true);
-        Gdx.graphics.requestRendering();
+        //Gdx.graphics.requestRendering();
 
         camera = new OrthographicCamera();
-        viewport = new StretchViewport(RENDER_WIDTH, RENDER_HEIGHT, camera);
+        viewport = new StretchViewport(ReflectBeat.RENDER_WIDTH, ReflectBeat.RENDER_HEIGHT, camera);
 
         hitcircleTexture = new Texture("hitcircle.png");
         hitcircleFailTexture = new Texture("hitcircle_fail.png");
@@ -108,6 +103,7 @@ public class GraphicsController {
         activeHitCircles = new Array<HitCircle>();
 
         random = new Random();
+
         // TODO: Font could probably look a bit better
         scoreFont = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
         scoreFont.getData().setScale(1.5f);
@@ -120,17 +116,15 @@ public class GraphicsController {
         judgements.add(new Judgement());
         judgements.add(new Judgement());
         judgements.add(new Judgement());
-
         judgeTextures = new Array<Texture>();
         judgeTextures.add(new Texture(Gdx.files.internal("JUST_downscale.png")));
         judgeTextures.add(new Texture(Gdx.files.internal("GREAT_downscale.png")));
         judgeTextures.add(new Texture(Gdx.files.internal("GOOD_downscale.png")));
         judgeTextures.add(new Texture(Gdx.files.internal("MISS_downscale.png")));
-
         judgePositions = new Array<Float>();
-        judgePositions.add(RENDER_WIDTH/5f - (judgeTextures.get(0).getWidth()/2));
-        judgePositions.add(RENDER_WIDTH/2f - (judgeTextures.get(0).getWidth()/2));
-        judgePositions.add(RENDER_WIDTH * (4f/5f) - (judgeTextures.get(0).getWidth()/2));
+        judgePositions.add(ReflectBeat.RENDER_WIDTH/5f - (judgeTextures.get(0).getWidth()/2));
+        judgePositions.add(ReflectBeat.RENDER_WIDTH/2f - (judgeTextures.get(0).getWidth()/2));
+        judgePositions.add(ReflectBeat.RENDER_WIDTH * (4f/5f) - (judgeTextures.get(0).getWidth()/2));
     }
 
     public void processGraphics() {
@@ -148,7 +142,7 @@ public class GraphicsController {
                     GameScreen.scoreStr,
                     0,
                     camera.viewportHeight / 2,
-                    RENDER_WIDTH,
+                    ReflectBeat.RENDER_WIDTH,
                     Align.center,
                     false);
 

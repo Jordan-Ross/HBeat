@@ -27,7 +27,7 @@ public class AudioController {
     // The time it takes for a note to move down screen at the single speed
     // TODO: make this work for mixed note speeds
     // Approx time to move down screen at speed
-    private long audioLeadInMS = (long)(((GraphicsController.RENDER_HEIGHT
+    private long audioLeadInMS = (long)(((ReflectBeat.RENDER_HEIGHT
             - GraphicsController.LINE_HEIGHT
             + GraphicsController.LINE_WIDTH/2
             - GraphicsController.HIT_SPRITE_SIZE/2)

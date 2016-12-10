@@ -24,8 +24,8 @@ public class HitCircle extends Sprite implements Pool.Poolable {
 
     private final float HITBOX_DIFF = 32;   // HitCircle touch tolerance
     public static float HIT_SPRITE_SIZE = GraphicsController.HIT_SPRITE_SIZE;
-    private static float RENDER_WIDTH = GraphicsController.RENDER_WIDTH;
-    private static float RENDER_HEIGHT = GraphicsController.RENDER_HEIGHT;
+    private static float RENDER_WIDTH = ReflectBeat.RENDER_WIDTH;
+    private static float RENDER_HEIGHT = ReflectBeat.RENDER_HEIGHT;
     public static float MIN_X = 0;     // Min x pos a circle can spawn
     public static float MAX_X = RENDER_WIDTH - HIT_SPRITE_SIZE;    // Max x pos a circle can spawn
 

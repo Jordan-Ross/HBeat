@@ -39,7 +39,7 @@ public class HitObject {
         if (x_pos > HitCircle.MAX_X) {
             x_pos = HitCircle.MAX_X;
         }
-        y_pos = GraphicsController.RENDER_HEIGHT;
+        y_pos = ReflectBeat.RENDER_HEIGHT;
         x_vel = 200;    // TODO: no constants pls
         y_vel = -300;
     }

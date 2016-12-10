@@ -3,6 +3,9 @@ package com.example.reflectbeat;
 import com.badlogic.gdx.Game;
 
 public class ReflectBeat extends Game {
+    public static final float RENDER_WIDTH = 540;
+    public static final float RENDER_HEIGHT = 960;
+
     @Override
     public void create() {
         this.setScreen(new TitleScreen(this));
