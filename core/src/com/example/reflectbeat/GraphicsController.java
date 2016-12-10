@@ -143,7 +143,7 @@ public class GraphicsController {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
             scoreFont.draw(batch,
-                    ReflectBeat.scoreStr,
+                    GameScreen.scoreStr,
                     0,
                     camera.viewportHeight / 2,
                     RENDER_WIDTH,
@@ -212,7 +212,7 @@ public class GraphicsController {
             //Gdx.app.log("moveHitcircles", Long.toString(test));
 
             // If hitcircle passed below line
-            if (hit.getY() < LINE_HEIGHT - HIT_LINE_TOLERANCE) {
+            if (hit.getY() < LINE_HEIGHT - HIT_LINE_TOLERANCE && hit.alive) {
                 if (hit.getY() < -HIT_SPRITE_SIZE) {
                     // Below Screen (Remove hitcircle)
                     hit.alive = false;
@@ -222,7 +222,7 @@ public class GraphicsController {
                     // Just below line (Hit fail)
                     hit.setTexture(hitcircleFailTexture);
                     //ReflectBeat.resetScore();
-                    ReflectBeat.incrementScore(-3);
+                    GameScreen.incrementScore(-3);
                     Judgement.spawnJudgement(Judgement.calculateIndex(hit.getX()), Judgement.Judge.MISS);
                     hit.fail = true;
                 }
@@ -254,6 +254,6 @@ public class GraphicsController {
         hitcircleTexture.dispose();
         hitLineTexture.dispose();
         hitCirclePool.freeAll(activeHitCircles);
-        ReflectBeat.score = 0;
+        GameScreen.score = 0;
     }
 }

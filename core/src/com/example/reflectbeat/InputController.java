@@ -1,5 +1,6 @@
 package com.example.reflectbeat;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.math.Vector2;
@@ -17,33 +18,33 @@ public class InputController extends InputAdapter {
     public boolean touchDown(int x, int y, int pointer, int button) {
         //Gdx.app.log("touchDown", String.format(Locale.US, "Touch location: %d, %d", x, y));
         Vector2 transform = new Vector2(x, y);
-        transform = ReflectBeat.graphicsController.viewport.unproject(transform);
+        transform = GameScreen.graphicsController.viewport.unproject(transform);
         Gdx.app.log("touchDown", String.format(Locale.US,
                 "Touch location (Transformed): %f, %f", transform.x, transform.y));
 
         //TODO: IS THE TIMING BETTER WITH OR WITHOUT HITCIRCLE ASSIGNMENTS??????
         //This is going through *every* hitcircle on the screen to check for touch,
         //which is probably going to suck later (like when there are 100 circles to check)
-        int size = ReflectBeat.graphicsController.activeHitCircles.size;
+        int size = GameScreen.graphicsController.activeHitCircles.size;
         for (int i = 0; i < size; i++) {
-            if (ReflectBeat.graphicsController.checkInLineHitbox(transform.x, transform.y)) {
+            if (GameScreen.graphicsController.checkInLineHitbox(transform.x, transform.y)) {
                 //Tapped inside hitline, so check for hit_circle_pool
-                if (ReflectBeat.graphicsController.activeHitCircles.get(i).checkTouched(transform.x, transform.y)) {
+                if (GameScreen.graphicsController.activeHitCircles.get(i).checkTouched(transform.x, transform.y)) {
                     // Hitcircle was touched while one line
-                    ReflectBeat.audioController.playHitsound();
-                    ReflectBeat.graphicsController.activeExplosions.add(new Explosion(transform.x));
+                    GameScreen.audioController.playHitsound();
+                    GameScreen.graphicsController.activeExplosions.add(new Explosion(transform.x));
 
                     //Gdx.app.log("touchDown", "Hitcircle touched!");
-                    HitCircle hit = ReflectBeat.graphicsController.activeHitCircles.get(i);
+                    HitCircle hit = GameScreen.graphicsController.activeHitCircles.get(i);
 
                     // Timing of hit gives the number added to score (see readme)
-                    tempScore = ReflectBeat.audioController.checkTiming(hit.spawn_time, transform.x);
+                    tempScore = GameScreen.audioController.checkTiming(hit.spawn_time, transform.x);
 
                     // Remove hit
                     hit.alive = false;
 
 
-                    ReflectBeat.incrementScore(tempScore);
+                    GameScreen.incrementScore(tempScore);
                     break;
                 }
             }

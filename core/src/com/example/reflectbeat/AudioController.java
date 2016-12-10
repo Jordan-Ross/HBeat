@@ -73,13 +73,14 @@ public class AudioController {
         }, audioLeadInMS / 1000f);
     }
 
+    // TODO: something is very fucky with timing, anything spawned before the song is off by ~100ms
     public void updateSongTime() {
         //Manage song timing
         if (currentSong.isPlaying()) {
             currentSongPos = (long)(currentSong.getPosition() * 1000) + audioLeadInMS;
         }
         else {
-            currentSongPos = System.currentTimeMillis() - currentSongStart;
+            currentSongPos = System.currentTimeMillis() - currentSongStart - 100;
         }
     }
 
@@ -92,7 +93,7 @@ public class AudioController {
             if ((currentSongPos > note.time_ms + songGraphicsLatency)) {
                 // Spawn note, remove actual note from currentNotes
                 // Note, currentSongPos is the time of spawn, currentSongPos + audioLeadInMS is the expected time of hit
-                ReflectBeat.graphicsController.spawnHitcircle(note);
+                GameScreen.graphicsController.spawnHitcircle(note);
                 //currentNotes.removeIndex(note_index);
                 note_index++;
                 //Gdx.app.log("Created Note at", Float.toString(currentSong.getPosition()));
@@ -107,7 +108,7 @@ public class AudioController {
     public int checkTiming(long spawnTime, float xpos) {
         updateSongTime();
         // Subtract lead in time to compare
-        return Judgement.judgeNote(spawnTime, currentSongPos - audioLeadInMS + 40, xpos);
+        return Judgement.judgeNote(spawnTime, currentSongPos - audioLeadInMS + timingLatency, xpos);
     }
 
     private void initSounds() {

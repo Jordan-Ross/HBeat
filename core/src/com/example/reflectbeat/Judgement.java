@@ -91,11 +91,11 @@ public class Judgement {
      * @return index of position
      */
     public static int calculateIndex(float x) {
-        return (int) (x / (ReflectBeat.graphicsController.RENDER_WIDTH/3));
+        return (int) (x / (GameScreen.graphicsController.RENDER_WIDTH/3));
     }
 
     public static void spawnJudgement(int index, Judge judge) {
-        ReflectBeat.graphicsController.judgements.set(index, new Judgement(judge, index));
+        GameScreen.graphicsController.judgements.set(index, new Judgement(judge, index));
 
     }
 }
