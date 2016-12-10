@@ -86,6 +86,9 @@ public class HitCircle extends Sprite implements Pool.Poolable {
                 y > this.getY() - HITBOX_DIFF;
     }
 
+    /***
+     * Used when poolable HitCircle object is freed
+     */
     @Override
     public void reset() {
         setPosition(0,0);

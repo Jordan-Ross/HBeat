@@ -23,6 +23,11 @@ public class HitObject {
 
     // Read in map data from a string
     // Formatted as ',' separated integers
+
+    /***
+     * Initialize HitObject with a string of map data
+     * @param str HitObject data formatted as "time_ms,x_pos", all other info ignored for now (TODO)
+     */
     HitObject(String str) {
         String arr[] = str.split(",");
         time_ms = (long)Float.parseFloat(arr[0]);

@@ -65,6 +65,10 @@ public class GraphicsController {
 
     BitmapFont scoreFont;
 
+    /***
+     * Initialize everything
+     * TODO: make this less of a clusterfuck
+     */
     GraphicsController() {
         batch = new SpriteBatch();
         Gdx.graphics.setContinuousRendering(true);
@@ -106,9 +110,9 @@ public class GraphicsController {
         random = new Random();
         // TODO: Font could probably look a bit better
         scoreFont = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
-        judgementFont = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
         scoreFont.getData().setScale(1.5f);
-        judgementFont.getData().setScale(.2f);
+        //judgementFont = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
+        //judgementFont.getData().setScale(.2f);
 
         judgements = new Array<Judgement>();
         judgements.add(new Judgement());
@@ -121,16 +125,10 @@ public class GraphicsController {
         judgeTextures.add(new Texture(Gdx.files.internal("GOOD_downscale.png")));
         judgeTextures.add(new Texture(Gdx.files.internal("MISS_downscale.png")));
 
-        // The Judgement is desplayed in 3 fixed screen positions defined below
-        // judgeAtPos is needed to tell if there's a judgement at a position already being drawn
-        // This prevents a bug where there are two judgements overlapping, which looks bad and
-        //      is hard to read.
         judgePositions = new Array<Float>();
         judgePositions.add(RENDER_WIDTH/5f - (judgeTextures.get(0).getWidth()/2));
         judgePositions.add(RENDER_WIDTH/2f - (judgeTextures.get(0).getWidth()/2));
         judgePositions.add(RENDER_WIDTH * (4f/5f) - (judgeTextures.get(0).getWidth()/2));
-
-
     }
 
     public void processGraphics() {
@@ -138,6 +136,7 @@ public class GraphicsController {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        // Process hitcircle movement
         moveHitcircles();
 
         // Process Graphics
@@ -151,7 +150,7 @@ public class GraphicsController {
                     Align.center,
                     false);
 
-            //TODO (this is very slow ?)
+            // Render judgements (how close a hit was)
             for (Judgement judge : judgements) {
                 if (judge.isAlive()) {
                     textureIndex = judge.j.ordinal();
@@ -160,12 +159,15 @@ public class GraphicsController {
                 }
             }
 
+            // Render Hit Line
             batch.draw(hitLine, 0, LINE_HEIGHT);
 
+            // Render all circles
             for (HitCircle hit : activeHitCircles) {
                 hit.draw(batch);
             }
 
+            // Render active explosion animations
             for (Explosion exp : activeExplosions) {
                 float stateTime = exp.getCurrentFrame(Gdx.graphics.getDeltaTime());
                 if (explosionAnimation.isAnimationFinished(stateTime)) {
@@ -177,6 +179,7 @@ public class GraphicsController {
             }
         batch.end();
 
+        // Set hitcircles for removal (allows them to be GC'd)
         removeHitcircles();
     }
 
@@ -187,11 +190,22 @@ public class GraphicsController {
     }
 
 
+    /***
+     * Check if a touch happened on the line, incorporating tolerance
+     * TODO: Rely on timing check more instead. (i.e. don't use this at all, just tag circle as 'hit' if it's within timing constraints)
+     * @param x touch x position
+     * @param y touch y position
+     * @return true if inside hitbox of line
+     */
     public boolean checkInLineHitbox(float x, float y) {
         return y < hitLine.getY() + hitLine.getHeight() + hitLine_tolerance &&
                     y > hitLine.getY() - hitLine_tolerance;
     }
 
+    /***
+     * Removes all dead hitcircles from the active array
+     * Tags them as free within the pool
+     */
     private void removeHitcircles() {
         for (HitCircle hit : activeHitCircles) {
             if (!hit.alive) {
@@ -201,7 +215,9 @@ public class GraphicsController {
         }
     }
 
-    //Handle Hitcircle movement
+    /***
+     * Handle Hitcircle movement
+     */
     private void moveHitcircles() {
         for (HitCircle hit : activeHitCircles) {
             //long test = System.nanoTime();

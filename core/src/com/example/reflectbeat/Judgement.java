@@ -36,6 +36,10 @@ public class Judgement {
 
     /***
      * Judges the timing of the note hit
+     *
+     * Judgements are stored in graphicsController.judgements, index 0,1,2: only 3 judgements will
+     *      be on screen at a time.
+     *
      * @param expectedTime Time the note should have been hit
      * @param hitTime Time the note was hit
      * @param xpos X position where the note was hit
