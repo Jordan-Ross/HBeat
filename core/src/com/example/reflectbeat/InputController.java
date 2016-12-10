@@ -1,6 +1,5 @@
 package com.example.reflectbeat;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.math.Vector2;
@@ -23,7 +22,7 @@ public class InputController extends InputAdapter {
 
         //TODO: IS THE TIMING BETTER WITH OR WITHOUT HITCIRCLE ASSIGNMENTS??????
         for (HitCircle hit : GameScreen.graphicsController.activeHitCircles) {
-            if (!hit.fail
+            if (!hit.isFail()
                     && GameScreen.graphicsController.checkInLineHitbox(transform.x, transform.y)
                     && hit.checkTouched(transform.x, transform.y)) {
                 //Tapped inside hitline and HitCircle hit
@@ -32,10 +31,10 @@ public class InputController extends InputAdapter {
                 //Gdx.app.log("touchDown", "Hitcircle touched!");
 
                 // Timing of hit gives the number added to score (see readme)
-                GameScreen.incrementScore(GameScreen.audioController.checkTiming(hit.spawn_time, transform.x));
+                GameScreen.incrementScore(GameScreen.audioController.checkTiming(hit.getHit_time(), transform.x));
 
                 // Remove hit
-                hit.alive = false;
+                hit.setAlive(false);
                 break;
             }
 

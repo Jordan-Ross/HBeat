@@ -15,9 +15,6 @@ import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import java.util.Locale;
-import java.util.Random;
-
 /**
  * Created by Jordan on 12/7/2016.
  * Handles all Graphics of the application
@@ -40,6 +37,11 @@ public class GraphicsController {
     public static final int HIT_LINE_TOLERANCE = 40;
     private Texture hitLineTexture;
 
+    public float HIT_LINE_TO_TOP_DISTANCE = ReflectBeat.RENDER_HEIGHT
+            - GraphicsController.LINE_HEIGHT
+            + GraphicsController.LINE_WIDTH/2
+            - GraphicsController.HIT_SPRITE_SIZE/2;
+
     private Texture explosion;
     private static final int FRAME_COLS = 8;
     private static final int FRAME_ROWS = 1;
@@ -48,7 +50,6 @@ public class GraphicsController {
     public Array<Explosion> activeExplosions;
     //private TextureRegion currentFrame;
 
-    private Random random;
 
     private BitmapFont scoreFont;
 
@@ -103,7 +104,6 @@ public class GraphicsController {
 
         activeHitCircles = new Array<HitCircle>();
 
-        random = new Random();
 
         // TODO: Font could probably look a bit better
         scoreFont = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
@@ -161,7 +161,7 @@ public class GraphicsController {
 
             // Render all circles
             for (HitCircle hit : activeHitCircles) {
-                if (hit.alive)
+                if (hit.isAlive())
                     hit.draw(batch);
             }
 
@@ -211,19 +211,20 @@ public class GraphicsController {
             //Gdx.app.log("moveHitcircles", Long.toString(test));
 
             // If hitcircle passed below line
-            if (hit.getY() < LINE_HEIGHT - HIT_LINE_TOLERANCE && hit.alive) {
+            if (hit.getY() < LINE_HEIGHT - HIT_LINE_TOLERANCE && hit.isAlive()) {
                 if (hit.getY() < -HIT_SPRITE_SIZE) {
                     // Below Screen (Remove hitcircle)
-                    hit.alive = false;
+                    hit.setAlive(false);
                     //spawnHitcircle(0, -speed);
                 }
-                else if (!hit.fail){
+                // TODO: JUDGE FAILURES BASED ON TIMING!!!!!!!!!!!!!!!!!!
+                else if (!hit.isFail()){
                     // Just below line (Hit fail)
                     hit.setTexture(hitcircleFailTexture);
                     //ReflectBeat.resetScore();
                     GameScreen.incrementScore(-3);
                     Judgement.spawnJudgement(Judgement.calculateIndex(hit.getX()), Judgement.Judge.MISS);
-                    hit.fail = true;
+                    hit.setFail(true);
                 }
             }
         }
@@ -235,7 +236,7 @@ public class GraphicsController {
      */
     private void removeHitcircles() {
         for (HitCircle hit : activeHitCircles) {
-            if (!hit.alive) {
+            if (!hit.isAlive()) {
                 activeHitCircles.removeValue(hit, true);
                 hitCirclePool.free(hit);
             }

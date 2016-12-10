@@ -13,16 +13,19 @@ import java.util.Locale;
 
 public class HitCircle extends Sprite implements Pool.Poolable {
 
-    private float xspeed, yspeed;
+    private float xspeed = 0;
+    private float yspeed = 0;
     //private int x_direction; // 1 is right, -1 is left
     // TODO: only public for now
-    public int x_direction; // 1 is right, -1 is left
+    private int x_direction; // 1 is right, -1 is left
 
-    public boolean alive;
-    public boolean fail;
-    public long spawn_time;
+    private boolean alive = false;
+    private boolean fail = false;
 
-    private final float HITBOX_DIFF = 32;   // HitCircle touch tolerance
+    private long hit_time = 0;  // Time the note should be hit
+    private long spawn_time = 0;    // Time the note is spawned; based on y velocity
+
+    private static final float HITBOX_DIFF = 32;   // HitCircle touch tolerance
     public static float HIT_SPRITE_SIZE = GraphicsController.HIT_SPRITE_SIZE;
     private static float RENDER_WIDTH = ReflectBeat.RENDER_WIDTH;
     private static float RENDER_HEIGHT = ReflectBeat.RENDER_HEIGHT;
@@ -32,7 +35,7 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     public HitCircle() {
         super(GraphicsController.hitcircleTexture);
         init(false, false, 0, 0, 0, 0, 0, 0);
-        this.alive = false;
+        this.setAlive(false);
     }
 
     /***
@@ -42,9 +45,8 @@ public class HitCircle extends Sprite implements Pool.Poolable {
      */
     HitCircle(String str) {
         String arr[] = str.split(",");
-        spawn_time = (long)Float.parseFloat(arr[0]);
-        // TODO: (!!!) something is causing the circles to get stuck to the wall again, probably more timing based rather than caused by anything here
-        setX((Integer.parseInt(arr[1]) %
+        //setHit_time((long)Float.parseFloat(arr[0]));
+        setX((Float.parseFloat(arr[1]) %
                 (HitCircle.MAX_X - HitCircle.MIN_X))
                 + HitCircle.MIN_X);
         //x_vel = Integer.parseInt(arr[2]);
@@ -54,13 +56,21 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         }
         setY(ReflectBeat.RENDER_HEIGHT);
         this.xspeed = 200;    // TODO: no constants pls
-        this.yspeed = -300;
+        //this.yspeed = -400;
+        this.yspeed = Float.parseFloat(arr[2]);
 
-        alive = false;
-        fail = false;
+        // ALso sets spawn time
+        setHit_time((long)Float.parseFloat(arr[0]));
+
+        // The note will spawn at a time dependent on time it takes to get from spawn to hitline
+        //setSpawn_time(this.getHit_time() - ((long)(GameScreen.graphicsController.HIT_LINE_TO_TOP_DISTANCE / (-1 * yspeed)) * 1000L));
+
+        setAlive(false);
+        setFail(false);
     }
 
     // Unused Constructors
+    /*
     public HitCircle(boolean fail, float x, float y, int xdir, float xspeed, float yspeed) {
         super();
         init(false, fail, xdir, xspeed, yspeed, x, y, 0);
@@ -68,17 +78,16 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         //Gdx.app.log("HitCircle constructor", String.format(Locale.US, "x: %f   y: %f    xdir: %d",
         //        getX(), getY(), x_direction));
     }
-
     public HitCircle(boolean fail, float x, float y, int xdir) {
         this(fail, x, y, xdir, 0, -300);
     }
+    */
 
     public void moveCircle(float deltaTime) {
         float xAmount = xspeed * deltaTime;
         Gdx.app.log("moveCircle", String.format(Locale.US, "Before: x_dir: %d", x_direction));
         // *boing*
-        if (getX() + xAmount > MAX_X
-                || getX() - xAmount < MIN_X) {
+        if ((x_direction == 1 && getX() + xAmount > MAX_X) || (x_direction == -1 && getX() - xAmount < MIN_X)) {
             x_direction *= -1;
         }
         Gdx.app.log("moveCircle", String.format(Locale.US, "After:  X: %f   xAmt: %f    x_dir: %d", getX(), xAmount, x_direction));
@@ -88,11 +97,11 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     }
 
     public void initActive(HitCircle other) {
-        init(true, false, 1, other.xspeed, other.yspeed, other.getX(), other.getY(), other.spawn_time);
+        init(true, false, ReflectBeat.random.nextBoolean() ? -1 : 1, other.xspeed, other.yspeed, other.getX(), other.getY(), other.getHit_time());
     }
 
     // TODO: this is only being called with fail=false, should this be removed?
-    public void init(boolean alive, boolean fail, int xdir, float xspeed, float yspeed, float xpos, float ypos, long spawn_time) {
+    public void init(boolean alive, boolean fail, int xdir, float xspeed, float yspeed, float xpos, float ypos, long hit_time) {
         this.setTexture(fail ? GraphicsController.hitcircleFailTexture : GraphicsController.hitcircleTexture);
         //setPosition(RENDER_WIDTH/2, RENDER_HEIGHT);
 
@@ -109,10 +118,10 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         //this.setPosition(xpos, ypos);
         setX(xpos);
         setY(ypos);
-        this.alive = alive;
-        this.fail = fail;
+        this.setAlive(alive);
+        this.setFail(fail);
 
-        this.spawn_time = spawn_time;
+        this.setHit_time(hit_time);
     }
 
     public boolean checkTouched(float x, float y) {
@@ -128,6 +137,50 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     @Override
     public void reset() {
         setPosition(0,0);
-        alive = false;
+        setAlive(false);
+    }
+
+    public float getXspeed() {
+        return xspeed;
+    }
+
+    public float getYspeed() {
+        return yspeed;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
+    }
+
+    public boolean isFail() {
+        return fail;
+    }
+
+    public void setFail(boolean fail) {
+        this.fail = fail;
+    }
+
+    public long getSpawn_time() {
+        return spawn_time;
+    }
+
+    public void setSpawn_time(long spawn_time) {
+        this.spawn_time = spawn_time;
+    }
+
+    public long getHit_time() {
+        return hit_time;
+    }
+
+    // Also sets spawn time if a speed is provided
+    public void setHit_time(long hit_time) {
+        this.hit_time = hit_time;
+        if (yspeed != 0) {
+            this.setSpawn_time(this.getHit_time() - (long)((GameScreen.graphicsController.HIT_LINE_TO_TOP_DISTANCE / (-1f * yspeed)) * 1000f));
+        }
     }
 }
