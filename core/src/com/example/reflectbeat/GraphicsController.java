@@ -191,7 +191,6 @@ public class GraphicsController {
 
     /***
      * Check if a touch happened on the line, incorporating tolerance
-     * TODO: Rely on timing check more instead. (i.e. don't use this at all, just tag circle as 'hit' if it's within timing constraints)
      * @param x touch x position
      * @param y touch y position
      * @return true if inside hitbox of line

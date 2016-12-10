@@ -1,8 +1,6 @@
 package com.example.reflectbeat;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 
 public class ReflectBeat extends Game {
     @Override

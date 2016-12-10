@@ -20,10 +20,11 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     public long spawn_time;
 
     private final float HITBOX_DIFF = 32;   // HitCircle touch tolerance
-    float HIT_SPRITE_SIZE = GraphicsController.HIT_SPRITE_SIZE;
-    float RENDER_WIDTH = GraphicsController.RENDER_WIDTH;
-    float WIDTH_RIGHT_SPRITE = RENDER_WIDTH - HIT_SPRITE_SIZE;    // Max x pos a circle can spawn
-    float RENDER_HEIGHT = GraphicsController.RENDER_HEIGHT;
+    public static float HIT_SPRITE_SIZE = GraphicsController.HIT_SPRITE_SIZE;
+    private static float RENDER_WIDTH = GraphicsController.RENDER_WIDTH;
+    private static float RENDER_HEIGHT = GraphicsController.RENDER_HEIGHT;
+    public static float MIN_X = 0;     // Min x pos a circle can spawn
+    public static float MAX_X = RENDER_WIDTH - HIT_SPRITE_SIZE;    // Max x pos a circle can spawn
 
     public HitCircle(boolean fail, int xdir) {
         super(fail ? GraphicsController.hitcircleFailTexture : GraphicsController.hitcircleTexture);
@@ -35,9 +36,9 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         this.setPosition(x, y);
 
         // Reverses direction if too close to one edge on spawn
-        if (this.getX() < 2)
+        if (this.getX() < MIN_X)
             x_direction = 1;
-        else if (this.getX() > WIDTH_RIGHT_SPRITE - 2)
+        else if (this.getX() > MAX_X)
             x_direction = -1;
         else
             x_direction = xdir;
@@ -60,8 +61,8 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         float xAmount = xspeed * deltaTime;
 
         // *boing*
-        if (getX() + xAmount > WIDTH_RIGHT_SPRITE
-                || getX() - xAmount < 0) {
+        if (getX() + xAmount > MAX_X
+                || getX() - xAmount < MIN_X) {
             x_direction *= -1;
         }
         // Warning: don't use this it's dumb (but looks interesting)

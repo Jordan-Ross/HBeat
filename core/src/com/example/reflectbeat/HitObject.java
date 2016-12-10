@@ -31,12 +31,13 @@ public class HitObject {
     HitObject(String str) {
         String arr[] = str.split(",");
         time_ms = (long)Float.parseFloat(arr[0]);
+        // TODO: (!!!) something is causing the circles to get stuck to the wall again
         x_pos = (Integer.parseInt(arr[1]) %
-                (GraphicsController.RENDER_WIDTH - 2 * GraphicsController.HIT_SPRITE_SIZE))
-                + GraphicsController.HIT_SPRITE_SIZE;
+                (HitCircle.MAX_X - HitCircle.MIN_X))
+                + HitCircle.MIN_X;
         //y_pos = Integer.parseInt(arr[2]);
-        if (x_pos > GraphicsController.RENDER_WIDTH + GraphicsController.HIT_SPRITE_SIZE) {
-            x_vel = 200;
+        if (x_pos > HitCircle.MAX_X) {
+            x_pos = HitCircle.MAX_X;
         }
         y_pos = GraphicsController.RENDER_HEIGHT;
         x_vel = 200;    // TODO: no constants pls
