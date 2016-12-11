@@ -12,6 +12,7 @@ import java.util.Locale;
  */
 public class InputController extends InputAdapter {
 
+    // TODO: Optimize this for multi taps: array of touches that gets processed elsewhere.
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
         //Gdx.app.log("touchDown", String.format(Locale.US, "Touch location: %d, %d", x, y));

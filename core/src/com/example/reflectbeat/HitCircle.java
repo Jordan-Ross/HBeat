@@ -55,12 +55,19 @@ public class HitCircle extends Sprite implements Pool.Poolable {
             setX(HitCircle.MAX_X);
         }
         setY(ReflectBeat.RENDER_HEIGHT);
-        this.xspeed = 200;    // TODO: no constants pls
+        //this.xspeed = 200;    // /no constants pls
         //this.yspeed = -400;
-        this.yspeed = Float.parseFloat(arr[2]);
+        this.xspeed = 100 + Math.abs(ReflectBeat.random.nextInt() % 300);
+        this.yspeed = -300 - Math.abs(ReflectBeat.random.nextInt() % 100);    // Between -300 and -400
+        //this.yspeed = Float.parseFloat(arr[* ]);
 
-        // ALso sets spawn time
+
+        this.x_direction = ReflectBeat.random.nextBoolean() ? -1 : 1;
+
+        // Also sets spawn time
         setHit_time((long)Float.parseFloat(arr[0]));
+
+        Gdx.app.log("HitCircle", String.format(Locale.US, "xspeed: %f   yspeed: %f  hit_time: %d    spawn_time: %d", this.xspeed, this.yspeed, this.hit_time, this.spawn_time));
 
         // The note will spawn at a time dependent on time it takes to get from spawn to hitline
         //setSpawn_time(this.getHit_time() - ((long)(GameScreen.graphicsController.HIT_LINE_TO_TOP_DISTANCE / (-1 * yspeed)) * 1000L));
@@ -68,20 +75,6 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         setAlive(false);
         setFail(false);
     }
-
-    // Unused Constructors
-    /*
-    public HitCircle(boolean fail, float x, float y, int xdir, float xspeed, float yspeed) {
-        super();
-        init(false, fail, xdir, xspeed, yspeed, x, y, 0);
-
-        //Gdx.app.log("HitCircle constructor", String.format(Locale.US, "x: %f   y: %f    xdir: %d",
-        //        getX(), getY(), x_direction));
-    }
-    public HitCircle(boolean fail, float x, float y, int xdir) {
-        this(fail, x, y, xdir, 0, -300);
-    }
-    */
 
     public void moveCircle(float deltaTime) {
         float xAmount = xspeed * deltaTime;
@@ -97,7 +90,7 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     }
 
     public void initActive(HitCircle other) {
-        init(true, false, ReflectBeat.random.nextBoolean() ? -1 : 1, other.xspeed, other.yspeed, other.getX(), other.getY(), other.getHit_time());
+        init(true, false, other.x_direction, other.xspeed, other.yspeed, other.getX(), other.getY(), other.getHit_time());
     }
 
     // TODO: this is only being called with fail=false, should this be removed?

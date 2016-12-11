@@ -67,20 +67,15 @@ public class Judgement {
         //int index =(int) (xpos / (ReflectBeat.graphicsController.RENDER_WIDTH/3));
         int index = calculateIndex(xpos);
         if (diff < JUST) {
-            //ReflectBeat.graphicsController.judgements.set(index, new Judgement(Judge.JUST, index));
             spawnJudgement(index, Judge.JUST);
             return 3;
         }
         else if (diff < GREAT) {
-            //ReflectBeat.graphicsController.judgements.set(index, new Judgement(Judge.GREAT, index));
             spawnJudgement(index, Judge.GREAT);
-
             return 2;
         }
         else {  // GOOD
-            //ReflectBeat.graphicsController.judgements.set(index, new Judgement(Judge.GOOD, index));
             spawnJudgement(index, Judge.GOOD);
-
             return 1;
         }
     }

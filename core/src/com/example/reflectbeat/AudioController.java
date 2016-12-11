@@ -57,8 +57,7 @@ public class AudioController {
         // Manually tweaked for now
         songGraphicsLatency = -100; // ms
         songGraphicsLatency -= GraphicsController.HIT_SPRITE_SIZE/2;
-
-        timingLatency = 40; // ms
+        timingLatency = 50; // ms
 
         initSounds();
 
