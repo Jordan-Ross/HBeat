@@ -1,6 +1,6 @@
 print("Filename (no ext or dir):")
 filename = raw_input()
-path = "E:\\Documents\\Android Projects\\reflectbeat\\android\\assets\\songs\\"
+path = "..\\android\\assets\\songs\\"
 inf = open(path + filename + ".map", 'r')
 outf = open(path + filename + ".rbm", 'w')
 

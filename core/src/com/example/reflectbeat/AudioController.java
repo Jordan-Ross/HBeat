@@ -25,9 +25,7 @@ public class AudioController {
     private static int note_index;
     private HitCircle note;
 
-    // The time it takes for a note to move down screen at the single speed
-    // TODO: make this work for mixed note speeds
-    // Approx time to move down screen at speed
+    // Time it takes for first note to reach timing point (used to determine song lead in time)
     private long firstNoteLeadIn;
     private long currentSongStart;
 
@@ -36,14 +34,12 @@ public class AudioController {
     public void loadSong() {
         //TODO: more songs and selection screen
         // This is a stream, i.e. not loaded in ram.
-        currentSong = Gdx.audio.newMusic(Gdx.files.internal("songs/flower.mp3"));
+        currentSong = Gdx.audio.newMusic(Gdx.files.internal("songs/Drop_Granat.mp3"));
         //currentSong.setLooping(true);
-
-        // TODO: Add additional info to note array (x,y,speed, etc)
-        // TODO: Make Hitcircle and Hitobject one thing ?
         // Parse map for data
+
         currentNotes = new Array<HitCircle>();
-        FileHandle handle = Gdx.files.internal("songs/flower.rbm");
+        FileHandle handle = Gdx.files.internal("songs/Drop_Granat.rbm");
         String strings[] = handle.readString().split("\\r\\n");
         for (String string : strings) {
             currentNotes.add(new HitCircle(string));
@@ -57,7 +53,7 @@ public class AudioController {
         // Manually tweaked for now
         songGraphicsLatency = -100; // ms
         songGraphicsLatency -= GraphicsController.HIT_SPRITE_SIZE/2;
-        timingLatency = 50; // ms
+        timingLatency = 40; // ms
 
         initSounds();
 

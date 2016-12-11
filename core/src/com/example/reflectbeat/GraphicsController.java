@@ -45,6 +45,8 @@ public class GraphicsController {
     private Texture explosion;
     private static final int FRAME_COLS = 8;
     private static final int FRAME_ROWS = 1;
+    //private static final int FRAME_COLS = 8;
+    //private static final int FRAME_ROWS = 4;
     TextureRegion[] explosionFrames;
     private Animation explosionAnimation;
     public Array<Explosion> activeExplosions;
@@ -52,6 +54,8 @@ public class GraphicsController {
 
 
     private BitmapFont scoreFont;
+
+    private BitmapFont comboFont;
 
     public Array<Judgement> judgements;
     public float JUDGEMENT_HEIGHT = LINE_HEIGHT + LINE_WIDTH + 30;  // Height the judgement rating appears
@@ -79,6 +83,7 @@ public class GraphicsController {
         // EXPLOSION
         // TODO: Less copyright infringement
         explosion = new Texture("sanicnew2x.png");
+        //explosion = new Texture("unused/explosionFull.png");
         TextureRegion[][] temp = TextureRegion.split(explosion, explosion.getWidth() / FRAME_COLS, explosion.getHeight() / FRAME_ROWS);
         explosionFrames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
         int index = 0;
@@ -112,6 +117,9 @@ public class GraphicsController {
         //scoreFont.setColor(215, 115, 150, 0.5f);
         //judgementFont = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
         //judgementFont.getData().setScale(.2f);
+
+        comboFont = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
+        comboFont.getData().setScale(.15f);
 
         judgements = new Array<Judgement>();
         judgements.add(new Judgement());
@@ -148,11 +156,18 @@ public class GraphicsController {
                     false);
 
             // Render judgements (how close a hit was)
+            // TODO: Give judgements animations
             for (Judgement judge : judgements) {
                 if (judge.isAlive()) {
-                    textureIndex = judge.j.ordinal();
-                    batch.draw(judgeTextures.get(textureIndex), judgePositions.get(judge.index), JUDGEMENT_HEIGHT);
+                    batch.draw(judgeTextures.get(
+                            judge.j.ordinal()),
+                            judgePositions.get(judge.index),
+                            JUDGEMENT_HEIGHT);
                     judge.reduceLiveFrames();
+
+                    // Show combo
+                    // TODO: Render this better
+                    comboFont.draw(batch, GameScreen.comboStr, judgePositions.get(judge.index), JUDGEMENT_HEIGHT - 10);
                 }
             }
 
@@ -211,13 +226,13 @@ public class GraphicsController {
             //Gdx.app.log("moveHitcircles", Long.toString(test));
 
             // If hitcircle passed below line
-            if (hit.getY() < LINE_HEIGHT - HIT_LINE_TOLERANCE && hit.isAlive()) {
+            if (hit.getY() < LINE_HEIGHT - HIT_SPRITE_SIZE - HIT_LINE_TOLERANCE && hit.isAlive()) {
                 if (hit.getY() < -HIT_SPRITE_SIZE) {
                     // Below Screen (Remove hitcircle)
                     hit.setAlive(false);
                     //spawnHitcircle(0, -speed);
                 }
-                // TODO: JUDGE FAILURES BASED ON TIMING!!!!!!!!!!!!!!!!!!
+                // JUDGE FAILURES BASED ON TIMING?
                 else if (!hit.isFail()){
                     // Just below line (Hit fail)
                     hit.setTexture(hitcircleFailTexture);
@@ -254,6 +269,6 @@ public class GraphicsController {
         hitcircleTexture.dispose();
         hitLineTexture.dispose();
         hitCirclePool.freeAll(activeHitCircles);
-        GameScreen.score = 0;
+        GameScreen.resetScore();
     }
 }

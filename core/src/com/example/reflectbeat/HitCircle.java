@@ -15,8 +15,6 @@ public class HitCircle extends Sprite implements Pool.Poolable {
 
     private float xspeed = 0;
     private float yspeed = 0;
-    //private int x_direction; // 1 is right, -1 is left
-    // TODO: only public for now
     private int x_direction; // 1 is right, -1 is left
 
     private boolean alive = false;
@@ -57,7 +55,8 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         setY(ReflectBeat.RENDER_HEIGHT);
         //this.xspeed = 200;    // /no constants pls
         //this.yspeed = -400;
-        this.xspeed = 100 + Math.abs(ReflectBeat.random.nextInt() % 300);
+        // TODO: Possibly set speeds in map, but make individual components random?
+        this.xspeed = Math.abs(ReflectBeat.random.nextInt() % 400);
         this.yspeed = -300 - Math.abs(ReflectBeat.random.nextInt() % 100);    // Between -300 and -400
         //this.yspeed = Float.parseFloat(arr[* ]);
 

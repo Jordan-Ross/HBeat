@@ -11,11 +11,14 @@ import com.badlogic.gdx.Screen;
 
 public class GameScreen implements Screen {
     public static AudioController audioController;
+
     public static GraphicsController graphicsController;
 
-    static public int score;
+    // TODO: is there an actual performance difference with these strings or am I just being dumb?
+    static private int score;
     static public String scoreStr; // Score in a converted string ?????
-    static public int combo; //TODO
+    static private int combo;
+    static public String comboStr;
 
     GameScreen() {
         graphicsController = new GraphicsController();
@@ -48,11 +51,23 @@ public class GameScreen implements Screen {
     public static void incrementScore(int points) {
         score += points;
         scoreStr = Integer.toString(score);
+
+        // TODO: handle combo better (if a note is hit after a previous note not yet a "miss", both notes reset)
+        if (points > 0) {
+            combo++;
+            comboStr = "Combo: " + Integer.toString(combo);
+        }
+        else {
+            combo = 0;
+            comboStr = "Combo: " + Integer.toString(combo);
+        }
     }
 
     public static void resetScore() {
         score = 0;
+        combo = 0;
         scoreStr = Integer.toString(score);
+        comboStr = "Combo: " + Integer.toString(combo);
     }
 
     @Override

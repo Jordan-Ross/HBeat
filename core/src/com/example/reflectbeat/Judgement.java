@@ -2,14 +2,17 @@ package com.example.reflectbeat;
 
 import com.badlogic.gdx.Gdx;
 
+import java.util.Locale;
+
 /**
  * Created by Jordan on 12/9/2016.
  * Manages how notes are judged when hit
  * "Judgement" refers to the text shown indicating the score gained from a note hit.
  */
 public class Judgement {
-    private static final long JUST = 70;
-    private static final long GREAT = 140;
+    private static final long JUST = 100;
+    private static final long GREAT = 200;
+    private static final long GOOD = 300;
 
     private static final int LIVE_TIME = 50;
 
@@ -63,7 +66,7 @@ public class Judgement {
      */
     public static int judgeNote(long expectedTime, long hitTime, float xpos) {
         long diff = Math.abs(expectedTime - hitTime);
-        Gdx.app.log("judgeNote", Long.toString(expectedTime - hitTime));
+        Gdx.app.log("judgeNote", String.format(Locale.US, "%d %s", diff, expectedTime > hitTime ? "(early)" : "(late)"));
         //int index =(int) (xpos / (ReflectBeat.graphicsController.RENDER_WIDTH/3));
         int index = calculateIndex(xpos);
         if (diff < JUST) {
@@ -74,10 +77,15 @@ public class Judgement {
             spawnJudgement(index, Judge.GREAT);
             return 2;
         }
-        else {  // GOOD
+        //else if (diff < GOOD) {
+        else {
             spawnJudgement(index, Judge.GOOD);
             return 1;
         }
+        //else {  // MISS
+        //    spawnJudgement(index, Judge.MISS);
+        //    return -3;
+        //}
     }
 
     /***
@@ -91,7 +99,6 @@ public class Judgement {
 
     public static void spawnJudgement(int index, Judge judge) {
         GameScreen.graphicsController.judgements.set(index, new Judgement(judge, index));
-
     }
 }
 
