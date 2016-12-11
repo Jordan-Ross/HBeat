@@ -9,3 +9,6 @@ JUST|  +3
 GREAT |+2
 GOOD |  +1
 MISS |  -3
+
+## TODO:
+Implement .bme reading, and get some more info from http://gdlife.sakura.ne.jp/srp/RefletMuse.html
