@@ -11,4 +11,4 @@ GOOD |  +1
 MISS |  -3
 
 ## TODO:
-Implement .bme reading, and get some more info from http://gdlife.sakura.ne.jp/srp/RefletMuse.html
+Implement .bms reading, and get some more info from http://gdlife.sakura.ne.jp/srp/RefletMuse.html
