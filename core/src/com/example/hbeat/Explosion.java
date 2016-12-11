@@ -1,4 +1,4 @@
-package com.example.reflectbeat;
+package com.example.hbeat;
 
 /**
  * Created by Jordan on 12/9/2016.

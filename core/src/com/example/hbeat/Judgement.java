@@ -1,4 +1,4 @@
-package com.example.reflectbeat;
+package com.example.hbeat;
 
 import com.badlogic.gdx.Gdx;
 
