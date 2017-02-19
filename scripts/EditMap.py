@@ -6,6 +6,7 @@ outf = open(path + filename + ".rbm", 'w')
 
 for line in inf:
 	splitln = line.split(',')
+	if splitln[3] != '1': continue
 	#time = int(splitln[2])
 	#outf.write(str(time) + ',' + splitln[0] + ',' + splitln[1] + '\n')
 	outf.write(splitln[2] + ',' + splitln[0] + ',' + splitln[1] + '\n')

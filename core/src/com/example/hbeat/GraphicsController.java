@@ -25,7 +25,6 @@ public class GraphicsController {
     public Viewport viewport;
     private OrthographicCamera camera;
 
-    private Pool<HitCircle> hitCirclePool;
     public Array<HitCircle> activeHitCircles;
     public static final float LINE_HEIGHT = 150;
     public static final float LINE_WIDTH = 40;
@@ -98,17 +97,8 @@ public class GraphicsController {
         hitLine = new Sprite(hitLineTexture);
         hitLine.setPosition(0, LINE_HEIGHT);
 
-        // The pool is better on memory or something
-        hitCirclePool = new Pool<HitCircle>() {
-            @Override
-            protected HitCircle newObject() {
-                //return new  HitCircle(false, random.nextBoolean() ? 1 : -1);
-                return new  HitCircle();
-            }
-        };
 
         activeHitCircles = new Array<HitCircle>();
-
 
         // TODO: Font could probably look a bit better
         scoreFont = new BitmapFont(Gdx.files.internal("gothic.fnt"), false);
@@ -177,7 +167,7 @@ public class GraphicsController {
             // Render all circles
             for (HitCircle hit : activeHitCircles) {
                 if (hit.isAlive())
-                    hit.draw(batch);
+                    batch.draw(hitcircleTexture, hit.getX(), hit.getY());
             }
 
             // Render active explosion animations
@@ -191,13 +181,15 @@ public class GraphicsController {
                 }
             }
         batch.end();
-
-        // Set hitcircles for removal (allows them to be GC'd)
-        removeHitcircles();
+        for (HitCircle hit : activeHitCircles) {
+            if (!hit.isAlive()) {
+                activeHitCircles.removeValue(hit, true);
+            }
+        }
     }
 
     public void spawnHitcircle(HitCircle note) {
-        HitCircle hit = hitCirclePool.obtain();
+        HitCircle hit = new HitCircle();
         hit.initActive(note);
         //hit.init(true, false, -1, note.x_vel, note.y_vel, note.x_pos, note.y_pos, note.time_ms);
         activeHitCircles.add(hit);
@@ -230,30 +222,18 @@ public class GraphicsController {
                 if (hit.getY() < -HIT_SPRITE_SIZE) {
                     // Below Screen (Remove hitcircle)
                     hit.setAlive(false);
+
                     //spawnHitcircle(0, -speed);
                 }
                 // JUDGE FAILURES BASED ON TIMING?
                 else if (!hit.isFail()){
                     // Just below line (Hit fail)
-                    hit.setTexture(hitcircleFailTexture);
+                    //TODO
                     //ReflectBeat.resetScore();
                     GameScreen.incrementScore(-3);
                     Judgement.spawnJudgement(Judgement.calculateIndex(hit.getX()), Judgement.Judge.MISS);
                     hit.setFail(true);
                 }
-            }
-        }
-    }
-
-    /***
-     * Removes all dead hitcircles from the active array
-     * Tags them as free within the pool
-     */
-    private void removeHitcircles() {
-        for (HitCircle hit : activeHitCircles) {
-            if (!hit.isAlive()) {
-                activeHitCircles.removeValue(hit, true);
-                hitCirclePool.free(hit);
             }
         }
     }
@@ -268,7 +248,6 @@ public class GraphicsController {
         hitcircleFailTexture.dispose();
         hitcircleTexture.dispose();
         hitLineTexture.dispose();
-        hitCirclePool.freeAll(activeHitCircles);
         GameScreen.resetScore();
     }
 }

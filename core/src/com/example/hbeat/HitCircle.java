@@ -8,11 +8,13 @@ import java.util.Locale;
 
 /**
  * Created by Jordan on 11/3/2016.
- * Acts as a single hit object on the screen
+ * Acts as a single hit object on the screen, stores attributes
  */
 
-public class HitCircle extends Sprite implements Pool.Poolable {
+public class HitCircle  {
 
+    private float x;
+    private float y;
     private float xspeed = 0;
     private float yspeed = 0;
     private int x_direction; // 1 is right, -1 is left
@@ -31,7 +33,6 @@ public class HitCircle extends Sprite implements Pool.Poolable {
     public static float MAX_X = RENDER_WIDTH - HIT_SPRITE_SIZE;    // Max x pos a circle can spawn
 
     public HitCircle() {
-        super(GraphicsController.hitcircleTexture);
         init(false, false, 0, 0, 0, 0, 0, 0);
         this.setAlive(false);
     }
@@ -85,7 +86,7 @@ public class HitCircle extends Sprite implements Pool.Poolable {
         Gdx.app.log("moveCircle", String.format(Locale.US, "After:  X: %f   xAmt: %f    x_dir: %d", getX(), xAmount, x_direction));
         // Rotates the circles while they move (looks kinda interesting)
         //setRotation(getRotation() + x_direction * -4);
-        super.translate((float) x_direction * xAmount, yspeed * deltaTime);
+        translate((float) x_direction * xAmount, yspeed * deltaTime);
     }
 
     public void initActive(HitCircle other) {
@@ -94,7 +95,6 @@ public class HitCircle extends Sprite implements Pool.Poolable {
 
     // TODO: this is only being called with fail=false, should this be removed?
     public void init(boolean alive, boolean fail, int xdir, float xspeed, float yspeed, float xpos, float ypos, long hit_time) {
-        this.setTexture(fail ? GraphicsController.hitcircleFailTexture : GraphicsController.hitcircleTexture);
         //setPosition(RENDER_WIDTH/2, RENDER_HEIGHT);
 
         // Reverses direction if too close to one edge on spawn
@@ -107,9 +107,7 @@ public class HitCircle extends Sprite implements Pool.Poolable {
 
         this.xspeed = xspeed;
         this.yspeed = yspeed;
-        //this.setPosition(xpos, ypos);
-        setX(xpos);
-        setY(ypos);
+        setPosition(xpos, ypos);
         this.setAlive(alive);
         this.setFail(fail);
 
@@ -123,13 +121,30 @@ public class HitCircle extends Sprite implements Pool.Poolable {
                 y > this.getY() - HITBOX_DIFF;
     }
 
-    /***
-     * Used when poolable HitCircle object is freed
-     */
-    @Override
-    public void reset() {
-        setPosition(0,0);
-        setAlive(false);
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public void setPosition(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void translate(float xdelt, float ydelt) {
+        setX(getX() + xdelt);
+        setY(getY() + ydelt);
     }
 
     public float getXspeed() {

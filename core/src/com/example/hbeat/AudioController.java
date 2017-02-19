@@ -34,12 +34,12 @@ public class AudioController {
     public void loadSong() {
         //TODO: more songs and selection screen
         // This is a stream, i.e. not loaded in ram.
-        currentSong = Gdx.audio.newMusic(Gdx.files.internal("songs/Drop_Granat.mp3"));
+        currentSong = Gdx.audio.newMusic(Gdx.files.internal("songs/sakura_reflection.mp3"));
         //currentSong.setLooping(true);
         // Parse map for data
 
         currentNotes = new Array<HitCircle>();
-        FileHandle handle = Gdx.files.internal("songs/Drop_Granat.rbm");
+        FileHandle handle = Gdx.files.internal("songs/sakura_reflection.rbm");
         String strings[] = handle.readString().split("\\r\\n");
         for (String string : strings) {
             currentNotes.add(new HitCircle(string));
