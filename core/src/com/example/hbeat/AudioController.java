@@ -6,7 +6,13 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
+import com.example.hbeat.bms.BmsNoteData;
+import com.example.hbeat.bms.BmsSongData;
+import com.example.hbeat.bms.BmsParser;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Locale;
 
 /**
@@ -31,15 +37,44 @@ public class AudioController {
 
     private Sound hitSound;
 
+
+    public void loadSong(String songName) {
+        FileHandle handle = Gdx.files.internal("songs/" + songName + ".bms");
+        // TODO: set song file name from bms
+        currentSong = Gdx.audio.newMusic(Gdx.files.internal("songs/" + songName + ".mp3"));
+        String strings[] = handle.readString().split("\\r\\n");
+        BmsSongData songData;
+        try {
+            songData = BmsParser.parseBMS(strings);
+        }
+        catch (Exception ex) {
+            Gdx.app.log("AudioController", "Could not parse BMS");
+            Gdx.app.log("AudioController", ex.getMessage());
+            ex.printStackTrace();
+            return;
+        }
+
+        // For now, song data is just converted into old data format
+        currentNotes = new Array<HitCircle>();
+        for (BmsNoteData note : songData.notes) {
+            currentNotes.add(new HitCircle(note, songData.getBpm()));
+        }
+        currentNotes.sort();
+
+        firstNoteLeadIn = currentNotes.get(0).getHit_time() - currentNotes.get(0).getSpawn_time();
+        init();
+    }
+
+    @Deprecated
+    // This is the old way (non bms) of loading a song
     public void loadSong() {
         //TODO: more songs and selection screen
         // This is a stream, i.e. not loaded in ram.
-        currentSong = Gdx.audio.newMusic(Gdx.files.internal("songs/sakura_reflection.mp3"));
+        currentSong = Gdx.audio.newMusic(Gdx.files.internal("songs/joshiraku.mp3"));
         //currentSong.setLooping(true);
         // Parse map for data
-
         currentNotes = new Array<HitCircle>();
-        FileHandle handle = Gdx.files.internal("songs/sakura_reflection.rbm");
+        FileHandle handle = Gdx.files.internal("songs/joshiraku.rbm");
         String strings[] = handle.readString().split("\\r\\n");
         for (String string : strings) {
             currentNotes.add(new HitCircle(string));
@@ -48,7 +83,30 @@ public class AudioController {
 
 
         Gdx.app.log("currentNotes: ", Integer.toString(currentNotes.size));
+        init();
+//        //TODO: Improve latency calculations
+//        // Manually tweaked for now
+//        songGraphicsLatency = -100; // ms
+//        songGraphicsLatency -= GraphicsController.HIT_SPRITE_SIZE/2;
+//        timingLatency = 40; // ms
+//
+//        initSounds();
+//
+//        note_index = 0;
+//
+//        currentSongPos = 0;
+//        currentSongStart = System.currentTimeMillis();
+//        Timer tt = new Timer();
+//        tt.scheduleTask(new Timer.Task() {
+//            @Override
+//            public void run() {
+//                Gdx.app.log("Timer", "Song started!");
+//                currentSong.play();
+//            }
+//        }, firstNoteLeadIn / 1000f);
+    }
 
+    private void init() {
         //TODO: Improve latency calculations
         // Manually tweaked for now
         songGraphicsLatency = -100; // ms
@@ -80,7 +138,8 @@ public class AudioController {
         }
         else {
             currentSongPos = System.currentTimeMillis() - currentSongStart - firstNoteLeadIn - 200L;
-            Gdx.app.log("updateSongTime", String.format(Locale.US, "Time: %d, Time-start: %d, CurrentTime: %d", System.currentTimeMillis(), System.currentTimeMillis() - currentSongStart, currentSongPos));
+            Gdx.app.log("updateSongTime", String.format(Locale.US, "Time: %d, Time-start: %d, CurrentTime: %d",
+                    System.currentTimeMillis(), System.currentTimeMillis() - currentSongStart, currentSongPos));
 
         }
     }
@@ -98,7 +157,7 @@ public class AudioController {
                 //currentNotes.removeIndex(note_index);
                 Gdx.app.log("processHitcircles", String.format(Locale.US, "Created Note %d at %d", note_index, currentSongPos));
                 note_index++;
-                //Gdx.app.log("Created Note, delta", Float.toString(Gdx.graphics.getDeltaTime()));
+                Gdx.app.log("Created Note, delta", Float.toString(Gdx.graphics.getDeltaTime()));
             }
             // All notes are in chrono order. When the song reaches a note it hasn't passed, exit loop.
             else break;

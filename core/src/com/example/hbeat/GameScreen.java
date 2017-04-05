@@ -25,7 +25,7 @@ public class GameScreen implements Screen {
         audioController = new AudioController();
         Gdx.input.setInputProcessor(new InputController());
 
-        audioController.loadSong();
+        audioController.loadSong("bride");
 
         resetScore();
     }

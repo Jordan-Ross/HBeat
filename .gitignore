@@ -41,3 +41,6 @@ captures/
 
 # Misc files
 *.misc
+
+# External project files
+ExternalUtils/

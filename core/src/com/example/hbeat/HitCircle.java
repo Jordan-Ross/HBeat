@@ -1,8 +1,7 @@
 package com.example.hbeat;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.utils.Pool;
+import com.example.hbeat.bms.BmsNoteData;
 
 import java.util.Locale;
 
@@ -11,7 +10,9 @@ import java.util.Locale;
  * Acts as a single hit object on the screen, stores attributes
  */
 
-public class HitCircle  {
+public class HitCircle implements Comparable<HitCircle> {
+
+    private BmsNoteData noteData;
 
     private float x;
     private float y;
@@ -22,7 +23,7 @@ public class HitCircle  {
     private boolean alive = false;
     private boolean fail = false;
 
-    private long hit_time = 0;  // Time the note should be hit
+    private long hit_time = 0;  // Time the note should be hit (ms)
     private long spawn_time = 0;    // Time the note is spawned; based on y velocity
 
     private static final float HITBOX_DIFF = 32;   // HitCircle touch tolerance
@@ -38,7 +39,7 @@ public class HitCircle  {
     }
 
     /***
-     * Temporary (NON-INITIALIZED DO NOT RENDER) HitCircle with a string of map data, to be used for
+     * HitCircle with a string of map data, to be used for
      *  initializing real HitCircles (from the pool in graphicsController)
      * @param str HitCircle data formatted as "spawn_time,x_pos,x_vel,y_vel"
      */
@@ -75,6 +76,40 @@ public class HitCircle  {
         setAlive(false);
         setFail(false);
     }
+
+    HitCircle(BmsNoteData data, float bpm) {
+        this.noteData = data;
+
+        setX((data.channel %
+                (HitCircle.MAX_X - HitCircle.MIN_X))
+                + HitCircle.MIN_X);
+        //x_vel = Integer.parseInt(arr[2]);
+        //y_vel = Integer.parseInt(arr[3]);
+        if (getX() > HitCircle.MAX_X) {
+            setX(HitCircle.MAX_X);
+        }
+        setY(ReflectBeat.RENDER_HEIGHT);
+        //this.xspeed = 200;    // /no constants pls
+        //this.yspeed = -400;
+        // TODO: AAAAAAAA
+        this.xspeed = Math.abs(ReflectBeat.random.nextInt() % 400);
+        this.yspeed = -300 - Math.abs(ReflectBeat.random.nextInt() % 100);    // Between -300 and -400
+
+        this.x_direction = ReflectBeat.random.nextBoolean() ? -1 : 1;
+
+        // Also sets spawn time
+        float beatsPerSecond = bpm / 60f;
+        // TODO: don't assume 4/4 time
+        float measureLength = 4f / beatsPerSecond;
+        float noteHitTime = (measureLength * ((float)data.measure + ((float)data.beat / (float)data.subdivision)));
+        setHit_time((long)(noteHitTime * 1000));
+
+        Gdx.app.log("HitCircle", String.format(Locale.US, "xspeed: %f   yspeed: %f  hit_time: %d    spawn_time: %d", this.xspeed, this.yspeed, this.hit_time, this.spawn_time));
+
+        setAlive(false);
+        setFail(false);
+    }
+
 
     public void moveCircle(float deltaTime) {
         float xAmount = xspeed * deltaTime;
@@ -183,11 +218,26 @@ public class HitCircle  {
         return hit_time;
     }
 
-    // Also sets spawn time if a speed is provided
+    // Also sets spawn time if a y speed is provided
     public void setHit_time(long hit_time) {
         this.hit_time = hit_time;
         if (yspeed != 0) {
             this.setSpawn_time(this.getHit_time() - (long)((GameScreen.graphicsController.HIT_LINE_TO_TOP_DISTANCE / (-1f * yspeed)) * 1000f));
         }
+    }
+
+    @Override
+    public int compareTo(HitCircle other) {
+        if (this.getSpawn_time() == other.getSpawn_time()) return 0;
+        else {
+            return this.getSpawn_time() > other.getSpawn_time() ? 1 : -1;
+        }
+    }
+
+    @Override
+    public String toString() {
+        String returnStr = "Spawn: " + Long.toString(this.getSpawn_time());
+        if (noteData != null) returnStr += ", " + noteData.toString();
+        return returnStr;
     }
 }
