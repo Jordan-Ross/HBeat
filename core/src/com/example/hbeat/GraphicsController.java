@@ -59,6 +59,7 @@ public class GraphicsController {
     public Array<Judgement> judgements;
     public float JUDGEMENT_HEIGHT = LINE_HEIGHT + LINE_WIDTH + 30;  // Height the judgement rating appears
     BitmapFont judgementFont;
+    // TODO make primitive arr
     Array<Float> judgePositions;// = {RENDER_WIDTH/3f, RENDER_WIDTH/2f, RENDER_WIDTH * (2f/3f)};
     private Array<Texture> judgeTextures;
     private int textureIndex;
@@ -181,11 +182,13 @@ public class GraphicsController {
                 }
             }
         batch.end();
-        for (HitCircle hit : activeHitCircles) {
-            if (!hit.isAlive()) {
-                activeHitCircles.removeValue(hit, true);
-            }
-        }
+        // TODO: Determine performance of this
+        // Removing values when they need to be set to not alive instead of looping through all here
+//        for (HitCircle hit : activeHitCircles) {
+//            if (!hit.isAlive()) {
+//                activeHitCircles.removeValue(hit, true);
+//            }
+//        }
     }
 
     public void spawnHitcircle(HitCircle note) {
@@ -222,6 +225,8 @@ public class GraphicsController {
                 if (hit.getY() < -HIT_SPRITE_SIZE) {
                     // Below Screen (Remove hitcircle)
                     hit.setAlive(false);
+                    // TODO: judge performance of this
+                    activeHitCircles.removeValue(hit, true);
 
                     //spawnHitcircle(0, -speed);
                 }

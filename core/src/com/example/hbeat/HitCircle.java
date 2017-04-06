@@ -26,7 +26,7 @@ public class HitCircle implements Comparable<HitCircle> {
     private long hit_time = 0;  // Time the note should be hit (ms)
     private long spawn_time = 0;    // Time the note is spawned; based on y velocity
 
-    private static final float HITBOX_DIFF = 32;   // HitCircle touch tolerance
+    private static final float HITBOX_DIFF = 42;   // HitCircle touch tolerance
     public static float HIT_SPRITE_SIZE = GraphicsController.HIT_SPRITE_SIZE;
     private static float RENDER_WIDTH = ReflectBeat.RENDER_WIDTH;
     private static float RENDER_HEIGHT = ReflectBeat.RENDER_HEIGHT;
@@ -79,8 +79,9 @@ public class HitCircle implements Comparable<HitCircle> {
 
     HitCircle(BmsNoteData data, float bpm) {
         this.noteData = data;
-
-        setX((data.channel %
+        // Between 0-1 (percentage basically)
+        float locationSeed = (data.channel - 10) / 10f;
+        setX((locationSeed *
                 (HitCircle.MAX_X - HitCircle.MIN_X))
                 + HitCircle.MIN_X);
         //x_vel = Integer.parseInt(arr[2]);

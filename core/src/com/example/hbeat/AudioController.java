@@ -10,9 +10,6 @@ import com.example.hbeat.bms.BmsNoteData;
 import com.example.hbeat.bms.BmsSongData;
 import com.example.hbeat.bms.BmsParser;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Locale;
 
 /**
@@ -27,6 +24,7 @@ public class AudioController {
     private long songGraphicsLatency;
     private long timingLatency;
 
+    BmsSongData songData;
     private Array<HitCircle> currentNotes;
     private static int note_index;
     private HitCircle note;
@@ -43,7 +41,6 @@ public class AudioController {
         // TODO: set song file name from bms
         currentSong = Gdx.audio.newMusic(Gdx.files.internal("songs/" + songName + ".mp3"));
         String strings[] = handle.readString().split("\\r\\n");
-        BmsSongData songData;
         try {
             songData = BmsParser.parseBMS(strings);
         }
@@ -117,47 +114,46 @@ public class AudioController {
 
         note_index = 0;
 
-        currentSongPos = 0;
+        currentSongPos = -firstNoteLeadIn;
         currentSongStart = System.currentTimeMillis();
         Timer tt = new Timer();
         tt.scheduleTask(new Timer.Task() {
             @Override
             public void run() {
-                Gdx.app.log("Timer", "Song started!");
+                Gdx.app.log("AudioController", "Song started at " + currentSongPos);
                 currentSong.play();
             }
-        }, firstNoteLeadIn / 1000f);
+        }, (firstNoteLeadIn + songData.getBgmStarttime()) / 1000f);
     }
 
     // TODO: something is very fucky with timing, anything spawned before the song is off by ~200ms (song takes 200ms to start?)
     // (this is also why the first condition needs song position > 0)
-    public void updateSongTime() {
+    public long getSongTime() {
         //Manage song timing
         if (currentSong.isPlaying() && currentSong.getPosition() > 0) {
-            currentSongPos = (long)(currentSong.getPosition() * 1000);
+            currentSongPos = (long)(currentSong.getPosition()* 1000) + songData.getBgmStarttime();
         }
         else {
             currentSongPos = System.currentTimeMillis() - currentSongStart - firstNoteLeadIn - 200L;
-            Gdx.app.log("updateSongTime", String.format(Locale.US, "Time: %d, Time-start: %d, CurrentTime: %d",
-                    System.currentTimeMillis(), System.currentTimeMillis() - currentSongStart, currentSongPos));
+//            Gdx.app.log("getSongTime", String.format(Locale.US, "Time: %d, Time-start: %d, CurrentTime: %d",
+//                    System.currentTimeMillis(), System.currentTimeMillis() - currentSongStart, currentSongPos));
 
         }
+        return currentSongPos;
     }
 
     public void processHitcircles() {
 
-        updateSongTime();
-
         for (int k = note_index; k < currentNotes.size; k++) {
             note = currentNotes.get(k);
-            if ((currentSongPos > note.getSpawn_time() + songGraphicsLatency)) {
+            if ((getSongTime() > note.getSpawn_time() + songGraphicsLatency)) {
                 // Spawn note, remove actual note from currentNotes
                 // Note, currentSongPos is the time of spawn, currentSongPos + firstNoteLeadIn is the expected time of hit
                 GameScreen.graphicsController.spawnHitcircle(note);
                 //currentNotes.removeIndex(note_index);
-                Gdx.app.log("processHitcircles", String.format(Locale.US, "Created Note %d at %d", note_index, currentSongPos));
+                Gdx.app.log("AudioController", String.format(Locale.US, "Created Note %d (%s) at %d", note_index, note.toString(), getSongTime()));
                 note_index++;
-                Gdx.app.log("Created Note, delta", Float.toString(Gdx.graphics.getDeltaTime()));
+                Gdx.app.log("AudioController", "Created Note, delta: " + Float.toString(Gdx.graphics.getDeltaTime()));
             }
             // All notes are in chrono order. When the song reaches a note it hasn't passed, exit loop.
             else break;
@@ -166,9 +162,8 @@ public class AudioController {
 
     // Judge a hit from inputcontroller
     public int checkTiming(long spawnTime, float xpos) {
-        updateSongTime();
         // Subtract lead in time to compare
-        return Judgement.judgeNote(spawnTime, currentSongPos + timingLatency, xpos);
+        return Judgement.judgeNote(spawnTime, getSongTime() + timingLatency, xpos);
     }
 
     private void initSounds() {

@@ -36,9 +36,10 @@ public class InputController extends InputAdapter {
 
                 // Remove hit
                 hit.setAlive(false);
+                // TODO: determine performance of this
+                GameScreen.graphicsController.activeHitCircles.removeValue(hit, true);
                 break;
             }
-
         }
         return true; // return true to indicate the event was handled
     }
